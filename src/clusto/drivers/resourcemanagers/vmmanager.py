@@ -20,6 +20,7 @@ class VMManager(ResourceManager):
     
     _driver_name = "vmmanager"
 
+    _attr_name = "vmmanager"
 
     def ensure_type(self, resource, number=True, thing=None):
 
@@ -33,10 +34,42 @@ class VMManager(ResourceManager):
         return (resource, number)
     
         
-    def insert(self, thing):
+    def insert(self, thing, memory=None, disk=None):
         # insert into self and also add attributes that will help with  allocation
+        if thing.type != 'server':
+            raise ResourceTypeException("Only servers can be inserted into "
+                                        "this manager.")
+
         
-        pass
+        memory = memory or thing.attr_value('system', subkey='memory')
+        disk = disk or thing.attr_value('system', subkey='disk')
+
+        if not memory and not disk:
+            raise ResourceTypeException("Server must have attributes for "
+                                        "key='system' and subkey='disk' "
+                                        "and 'memory' set to be inserted into "
+                                        "this manager.")
+
+        try:
+            clusto.begin_transaction()
+
+            attr = super(VMManager, self).insert(thing)
+
+            self.add_attr(thing.name,
+                          subkey='available_memory',
+                          value=memory)
+
+            self.add_attr(thing.name,
+                          subkey='available_disk',
+                          value=disk)
+            clusto.commit()
+            
+        except Exception, x:
+            clusto.rollback_transaction()
+            raise x
+        
+        
+        return attr
     
     def remove(self, thing):
         # check if thing is in use by a VM
