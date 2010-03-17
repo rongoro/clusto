@@ -78,7 +78,13 @@ class VMManager(ResourceManager):
         pass
         
     def additional_attrs(self, thing, resource, number):
-        pass
+
+        resource, number = self.ensure_type(resource, number)
+
+        thing.add_attr(self._attr_name, number=number,
+                       subkey='allocated_memory',
+                       value=thing.attr_value('system', subkey='memory'))
+        
 
     def allocate(self, thing, resource=(), number=True, **kwargs):
         """Allocate resources for VMs
