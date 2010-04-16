@@ -1,7 +1,7 @@
 import clusto
 from clusto.schema import Attribute
 
-from clusto.drivers import ResourceManager, ResourceTypeException, Driver
+from clusto.drivers.base import ResourceManager, ResourceTypeException, Driver
 from clusto.exceptions import ResourceNotAvailableException, ResourceException
 
 import IPy
@@ -60,7 +60,7 @@ class IPManager(ResourceManager):
         thing.add_attr(self._attr_name, number=number, subkey='ipstring', value=str(IPy.IP(resource+self.__int_ip_const)))
         
                      
-    def allocator(self):
+    def allocator(self, thing=None):
         """allocate IPs from this manager"""
 
         if self.baseip is None:

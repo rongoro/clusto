@@ -20,7 +20,7 @@ class SimpleNumManager(ResourceManager):
     _record_allocations = True
     _attr_name = "simplenum"
     
-    def allocator(self):
+    def allocator(self, thing=None):
 
         clusto.flush()
 

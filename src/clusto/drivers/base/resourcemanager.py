@@ -39,7 +39,7 @@ class ResourceManager(Driver):
 
 
         
-    def allocator(self):
+    def allocator(self, thing=None):
         """return an unused resource from this resource manager"""
 
         raise NotImplemented("No allocator implemented for %s you must explicitly specify a resource."
@@ -126,11 +126,11 @@ class ResourceManager(Driver):
 
             if resource is ():
                 # allocate a new resource
-                resource, number = self.allocator()
+                resource, number = self.allocator(thing)
 
             else:
-                resource, number = self.ensure_type(resource, number)
-                if not self.available(resource, number):
+                resource, number = self.ensure_type(resource, number, thing)
+                if not self.available(resource, number, thing):
                     raise ResourceException("Requested resource is not available.")
 
             if self._record_allocations:
@@ -185,7 +185,7 @@ class ResourceManager(Driver):
         except Exception, x:
             clusto.rollback_transaction()
             raise x
-    def available(self, resource, number=True):
+    def available(self, resource, number=True, thing=None):
         """return True if resource is available, False otherwise.
         """
 

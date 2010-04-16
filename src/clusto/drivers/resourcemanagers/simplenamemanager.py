@@ -25,7 +25,7 @@ class SimpleNameManager(ResourceManager):
     _record_allocations = True
     _attr_name = 'simplename'
     
-    def allocator(self):
+    def allocator(self, thing=None):
         clusto.flush()
 
         counter = clusto.Counter.get(self.entity, 'next', default=self.next)
