@@ -1,5 +1,4 @@
-from basicserver import *
-from penguincomputing import *
+from clusto.drivers.devices.servers.basicserver import *
+from clusto.drivers.devices.servers.penguincomputing import *
+#from clusto.drivers.devices.servers.xenvirtualserver import *
 
-## this isn't ready yet
-#from xenvirtualserver import * 

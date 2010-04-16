@@ -3,7 +3,7 @@
 from clusto.schema import *
 from clusto.exceptions import *
 
-from drivers import DRIVERLIST, TYPELIST, Driver, ClustoMeta, IPManager
+from clusto.drivers import DRIVERLIST, TYPELIST, Driver, ClustoMeta, IPManager
 from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy import create_engine
 
