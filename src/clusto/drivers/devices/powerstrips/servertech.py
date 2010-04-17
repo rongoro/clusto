@@ -6,7 +6,7 @@ Server Technology Power Strips
 
 from basicpowerstrip import BasicPowerStrip
 from clusto.drivers.devices.common import IPMixin, SNMPMixin
-from clusto.drivers import IPManager
+from clusto.drivers.resourcemanagers import IPManager
 from clusto.exceptions import DriverException
 
 import re

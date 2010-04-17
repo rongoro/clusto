@@ -3,7 +3,7 @@ SNMPMixin for objects that can be accessed with SNMP
 """
 
 import clusto
-from clusto.drivers import IPManager
+from clusto.drivers.resourcemanagers import IPManager
 
 # Get rid of pesky errors about missing routes and tcpdump
 import logging

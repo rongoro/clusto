@@ -1,5 +1,5 @@
 from clusto.drivers.base import Device
-from clusto.drivers.devices import PortMixin, IPMixin
+from clusto.drivers.devices.common import PortMixin, IPMixin
 
 class BasicServer(IPMixin, PortMixin, Device):
     """
