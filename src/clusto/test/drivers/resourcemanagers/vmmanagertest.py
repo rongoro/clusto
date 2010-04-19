@@ -40,18 +40,15 @@ class VMManagerTest(testbase.ClustoTestBase):
 
         vmm = clusto.get_by_name('vmm')
 
-        res = vmm.allocate(vs1)
-        # this should be a noop
-        self.assertEqual(vmm.allocate(vs1), res)
-        print res, vmm.resources(vs1)
+        vmm.allocate(vs1)
 
         self.assertEqual(len(vmm.resources(vs1)), 1)
 
-        self.assert_(vmm.resources(vs1)[0] in [s1, s2])
+        self.assert_(vmm.resources(vs1)[0].value in [s1, s2])
 
         vmm.allocate(vs2)
 
-        self.assertEqual(vmm.resources(vs2), [s2])
+        self.assertEqual([r.value for r in vmm.resources(vs2)], [s2])
 
 
 

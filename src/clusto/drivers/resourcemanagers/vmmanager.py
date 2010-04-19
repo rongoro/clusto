@@ -7,8 +7,11 @@ use of the ResourceManager plumbing where appropriate.
 """
 
 import clusto
-from clusto.drivers import ResourceManager
+from clusto.drivers.devices.servers import BasicServer
+from clusto.drivers.base import ResourceManager
 from clusto.exceptions import ResourceException
+
+import random
 
 class VMManager(ResourceManager):
     """Manage resources for Virtual Machines.
@@ -28,27 +31,28 @@ class VMManager(ResourceManager):
             resource = clusto.get_by_name(resource)
 
         if resource not in self:
-            raise ResourceTypeException("%s is not managed by this VM manager"
-                                        % resource.name)
+            raise ResourceException("%s is not managed by this VM manager"
+                                    % resource.name)
 
         return (resource, number)
     
         
     def insert(self, thing, memory=None, disk=None):
         # insert into self and also add attributes that will help with  allocation
-        if thing.type != 'server':
-            raise ResourceTypeException("Only servers can be inserted into "
-                                        "this manager.")
+        if thing.type != BasicServer._clusto_type:
+            raise ResourceException("Only servers can be inserted into "
+                                    "this manager but %s is of type %s."
+                                    % (thing.name, thing.type))
 
         
         memory = memory or thing.attr_value('system', subkey='memory')
         disk = disk or thing.attr_value('system', subkey='disk')
 
         if not memory and not disk:
-            raise ResourceTypeException("Server must have attributes for "
-                                        "key='system' and subkey='disk' "
-                                        "and 'memory' set to be inserted into "
-                                        "this manager.")
+            raise ResourceException("Server must have attributes for "
+                                    "key='system' and subkey='disk' "
+                                    "and 'memory' set to be inserted into "
+                                    "this manager.")
 
         try:
             clusto.begin_transaction()
@@ -84,7 +88,28 @@ class VMManager(ResourceManager):
         thing.add_attr(self._attr_name, number=number,
                        subkey='allocated_memory',
                        value=thing.attr_value('system', subkey='memory'))
+
+    def _has_capacity(self, host, vm):
+
+        return True
+    
+    def allocator(self, thing):
+        """Allocate a host server for a given virtual server. """
+
+        for res in self.resources(thing):
+            raise ResourceException("%s is already assigned to %s"
+                                    % (thing.name, res.value))
+
+        hosts = self.contents(clusto_types=[BasicServer])
+
+        random.shuffle(hosts)
         
+        for i in hosts:
+            if self._has_capacity(i, thing):
+                return (i, None)
+
+                
+        raise ResourceException("No hosts available.")
 
     def allocate(self, thing, resource=(), number=True, **kwargs):
         """Allocate resources for VMs
