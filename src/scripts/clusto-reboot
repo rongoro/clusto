@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+import clusto
+from clusto.scripthelpers import init_script
+
+import sys
+
+# Yes, this should take an IP.
+def main():
+    if len(sys.argv) < 2:
+        print 'Usage: %s <server name>' % sys.argv[0]
+        return -1
+
+    try:
+        server = clusto.get_by_name(sys.argv[1])
+    except LookupError:
+        sys.stderr.write('%s does not exist.' % sys.argv[1])
+        return -1
+
+    print 'Pools:'.ljust(16, ' '), ' '.join([x.name for x in server.parents(clusto_types=['pool'])]), '\n'
+
+    server.power_reboot(captcha=True)
+    print '%s is rebooting now.' % server.name
+
+if __name__ == '__main__':
+    init_script()
+    main()

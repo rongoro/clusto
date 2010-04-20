@@ -1,0 +1,6 @@
+*.pyc
+*~
+build
+dist
+src/clusto.egg-info
+doc/.build

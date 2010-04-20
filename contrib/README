@@ -1,0 +1,16 @@
+dhcpgen.py -- Generate a list of host sections for ISC dhcpd
+discovery.py -- Module for discovering information about hosts, not directly
+				callable
+etchosts.py -- Attempt to discover and create clusto server objects based on
+			   the content of a hosts file. May need modification in main() to
+			   achieve the desired effect.
+parsearp.py -- Imported by etchosts.py, allows discovery and creation of objects
+			   based on the output of scapy's arpping command
+sysinfo.py -- Uses paramiko to connect to servers and gather information about
+			  disks, processors, and memory to store in clusto attributes
+watcher.py -- If run with the "snmp" option, it watches for SNMP traps and
+			  creates new clusto objects bound to the correct rack and switch
+			  port. If run with the "dhcp" option, it will watch for DHCP
+			  requests containing vendor IDs matching PXE clients and IPMI
+			  cards. Associates the MAC address with the proper interface on
+			  the server object.

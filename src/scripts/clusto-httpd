@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+from clusto.services.config import conf
+from clusto.services.http import ClustoApp
+from clusto.scripthelpers import init_script
+
+if __name__ == '__main__':
+    from wsgiref.simple_server import make_server, WSGIRequestHandler
+
+    init_script()
+    app = ClustoApp()
+
+    # Disable reverse DNS upon request. It's just stupid.
+    wsgi = WSGIRequestHandler
+    def address_string(self):
+        return self.client_address[0]
+    wsgi.address_string = address_string
+
+    server = make_server(conf('http.bind_address'), conf('http.bind_port'), app, handler_class=wsgi)
+    server.serve_forever()

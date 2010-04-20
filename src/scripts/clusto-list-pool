@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+from clusto.scripthelpers import init_script
+from clusto.drivers import IPManager
+import clusto
+
+from optparse import OptionParser
+import sys
+
+def main():
+    config, logger = init_script()
+
+    parser = OptionParser(usage="usage: %prog pool-name [pool-name]*")
+    parser.add_option("-a", "--attr", dest="attribute", default=False, help="The clusto attribute to retrieve")
+    options, args = parser.parse_args()
+
+    if not args:
+        parser.print_help()
+        return -1
+
+    pools = []
+    for pool in args:
+        try:
+            obj = clusto.get_by_name(pool)
+        except LookupError:
+            sys.stderr.write('%s does not exist!\n' % pool)
+            return -1
+        if obj.type != 'pool':
+            sys.stderr.write('%s is not a pool!\n' % obj.name)
+            return -1
+        pools.append(obj)
+
+    entities = set(pools[0].contents())
+
+    for pool in pools[1:]:
+        entities.intersection_update(pool.contents())
+
+    if options.attribute:
+        for entity in entities:
+            for attr in entity.attrs(key=options.attribute):
+                print str(attr.value)
+    else:
+        for entity in entities:
+            ip = entity.get_ips()
+            if ip:
+                print ip[0]
+            else:
+                print entity.name
+
+if __name__ == '__main__':
+    sys.exit(main())

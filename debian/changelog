@@ -1,0 +1,353 @@
+clusto (0.5.21-1) unstable; urgency=low
+
+  * minor cleanup
+
+ -- Ron Gorodetzky <ron@digg.com>  Tue, 20 Apr 2010 16:53:54 -0700
+
+clusto (0.5.20-1) unstable; urgency=low
+
+  * Reorganizing http, dhcp, snmp services
+
+ -- Jeremy Grosser <synack@digg.com>  Thu, 15 Apr 2010 13:21:37 -0700
+
+clusto (0.5.19-1) unstable; urgency=low
+
+  * Datacenter awareness for hadoop 
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 30 Mar 2010 03:12:16 -0700
+
+clusto (0.5.18-3) unstable; urgency=low
+
+  * Allow clusto-hadoop-node to take hostnames 
+
+ -- Jeremy Grosser <synack@digg.com>  Mon, 29 Mar 2010 15:28:54 -0700
+
+clusto (0.5.18-2) unstable; urgency=low
+
+  * Add clusto-hadoop-node to scripts list in setup.py 
+
+ -- Jeremy Grosser <synack@digg.com>  Mon, 29 Mar 2010 15:14:34 -0700
+
+clusto (0.5.18-1) unstable; urgency=low
+
+  * Bugfixes for snmp/dhcp
+  * New hadoop rack awareness script
+
+ -- Jeremy Grosser <synack@digg.com>  Mon, 29 Mar 2010 15:10:45 -0700
+
+clusto (0.5.17-1) unstable; urgency=low
+
+  * fix empty commits
+  * add clusto.get()
+
+ -- Ron Gorodetzky <ron@digg.com>  Thu, 25 Mar 2010 03:18:15 -0700
+
+clusto (0.5.16-1) unstable; urgency=low
+
+  * added siblings function
+
+ -- Ron Gorodetzky <ron@digg.com>  Wed, 17 Mar 2010 15:06:09 -0700
+
+clusto (0.5.15-1) unstable; urgency=low
+
+  * Fixing more DHCP server bugs 
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 09 Mar 2010 17:15:41 -0800
+
+clusto (0.5.14-1) unstable; urgency=low
+
+  * DHCP server now uses HTTP to communicate with the backend
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 09 Mar 2010 15:48:35 -0800
+
+clusto (0.5.13-1) unstable; urgency=low
+
+  * Add vendor-specific DHCP options for pxelinux
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 09 Mar 2010 13:36:24 -0800
+
+clusto (0.5.12-2) unstable; urgency=low
+
+  * Remove debug statement 
+
+ -- Jeremy Grosser <synack@digg.com>  Fri, 05 Mar 2010 16:45:15 -0800
+
+clusto (0.5.12-1) unstable; urgency=low
+
+  * Fix clusto-puppet-node variable precedence
+
+ -- Jeremy Grosser <synack@digg.com>  Fri, 05 Mar 2010 16:42:41 -0800
+
+clusto (0.5.11-1) unstable; urgency=low
+
+  * Add the ability to disable a puppet node
+
+ -- Jeremy Grosser <synack@digg.com>  Fri, 05 Mar 2010 16:15:47 -0800
+
+clusto (0.5.10-1) unstable; urgency=low
+
+  * Use the most specific instance of key=puppet,subkey=environment
+
+ -- Jeremy Grosser <synack@digg.com>  Fri, 05 Mar 2010 13:58:43 -0800
+
+clusto (0.5.9-2) unstable; urgency=low
+
+  * Missing comma in setup.py 
+
+ -- Jeremy Grosser <synack@digg.com>  Thu, 25 Feb 2010 02:16:00 -0800
+
+clusto (0.5.9-1) unstable; urgency=low
+
+  * DHCP server cleanup, bugfixes
+  * BasicVirtualServer instances are now of the "virtualserver" type
+  * Various minor script fixes and additions
+
+ -- Jeremy Grosser <synack@digg.com>  Thu, 25 Feb 2010 02:10:39 -0800
+
+clusto (0.5.8-1) unstable; urgency=low
+
+  * Minor bugfixes for puppet related scripts 
+
+ -- Jeremy Grosser <synack@digg.com>  Fri, 12 Feb 2010 16:50:44 -0800
+
+clusto (0.5.7-1) unstable; urgency=low
+
+  * Add clusto-puppet-node and clean up unnecessary globals in dhcp_server
+
+ -- Jeremy Grosser <synack@digg.com>  Fri, 12 Feb 2010 15:32:21 -0800
+
+clusto (0.5.6-1) unstable; urgency=low
+
+  * Disable warnings for scapy logging
+
+ -- Jeremy Grosser <synack@digg.com>  Thu, 11 Feb 2010 14:44:58 -0800
+
+clusto (0.5.5-2) unstable; urgency=low
+
+  * Fix scapy imports 
+
+ -- Jeremy Grosser <synack@digg.com>  Thu, 11 Feb 2010 14:09:23 -0800
+
+clusto (0.5.5-1) unstable; urgency=low
+
+  * Depend on scapy 2.0.1 and update all relevant imports to suit
+
+ -- Jeremy Grosser <synack@digg.com>  Thu, 11 Feb 2010 13:44:10 -0800
+
+clusto (0.5.4-1) unstable; urgency=low
+
+  * Change the way scapy imports are handled
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 09 Feb 2010 11:57:10 -0800
+
+clusto (0.5.3-1) unstable; urgency=low
+
+  * Add clusto-pool to the scripts list
+
+ -- Jeremy Grosser <synack@digg.com>  Mon, 08 Feb 2010 17:42:43 -0800
+
+clusto (0.5.2-1) unstable; urgency=low
+
+  * Fix a minor bug in clusto-info
+
+ -- Jeremy Grosser <synack@digg.com>  Mon, 08 Feb 2010 17:32:47 -0800
+
+clusto (0.5.1-1) unstable; urgency=low
+
+  * Update control file and clusto-pool
+
+ -- Jeremy Grosser <synack@digg.com>  Mon, 08 Feb 2010 17:08:13 -0800
+
+clusto (0.5.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Mon, 08 Feb 2010 16:42:40 -0800
+
+clusto (0.4.6-1) unstable; urgency=low
+
+  * concurrency fixes
+
+ -- Ron Gorodetzky <ron@digg.com>  Mon, 30 Nov 2009 12:14:07 -0800
+
+clusto (0.4.5-1) unstable; urgency=low
+
+  * Switch to scapy for SNMP, add SNMPMixin
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 17 Nov 2009 13:51:46 -0800
+
+clusto (0.4.4-1) unstable; urgency=low
+
+  * fix missing exception
+
+ -- Ron Gorodetzky <ron@digg.com>  Mon, 16 Nov 2009 17:13:56 -0800
+
+clusto (0.4.3-1) unstable; urgency=low
+
+  * transaction bugfix
+
+ -- Ron Gorodetzky <ron@digg.com>  Mon, 16 Nov 2009 16:25:19 -0800
+
+clusto (0.4.2-1) unstable; urgency=low
+
+  * bugfix release
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 06 Nov 2009 14:45:12 -0800
+
+clusto (0.4.1-1) unstable; urgency=low
+
+  * bugfix release
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 06 Nov 2009 07:39:56 -0800
+
+clusto (0.4.0-1) unstable; urgency=low
+
+  * New upstream version 
+
+ -- Jeremy Grosser <synack@digg.com>  Mon, 02 Nov 2009 12:09:05 -0800
+
+clusto (0.3.2) unstable; urgency=low
+
+  * Use the right python version 
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 07 Jul 2009 22:59:40 +0000
+
+clusto (0.3.1) unstable; urgency=low
+
+  * New upstream release 
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 07 Jul 2009 22:55:16 +0000
+
+clusto (0.2.7-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Wed, 18 Mar 2009 02:25:39 -0700
+
+clusto (0.2.6-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Tue, 17 Mar 2009 21:54:31 -0700
+
+clusto (0.2.5-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Tue, 17 Mar 2009 14:04:40 -0700
+
+clusto (0.2.4-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 13 Mar 2009 19:54:51 -0700
+
+clusto (0.2.3-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 06 Mar 2009 18:58:22 -0800
+
+clusto (0.1.22-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Mon, 02 Mar 2009 15:02:49 -0800
+
+clusto (0.1.21-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Sun, 01 Mar 2009 20:22:52 -0800
+
+clusto (0.1.20-1) unstable; urgency=low
+
+  * New Upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Wed, 25 Feb 2009 20:03:41 -0800
+
+clusto (0.1.18-2) unstable; urgency=low
+
+  * Add sqlalchemy and ipython dependencies
+
+ -- Jeremy Grosser <synack@digg.com>  Wed, 18 Feb 2009 15:47:00 -0800
+
+clusto (0.1.18-1) unstable; urgency=low
+
+  * new upsream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Sun, 15 Feb 2009 15:32:46 -0800
+
+clusto (0.1.17-1) unstable; urgency=low
+
+  * new upsream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 13 Feb 2009 11:19:16 -0800
+
+clusto (0.1.16-3) unstable; urgency=low
+
+  * actually fix missing files
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 13 Feb 2009 11:10:49 -0800
+
+clusto (0.1.16-2) unstable; urgency=low
+
+  * fix missing files 
+  * fix debian package versioning
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 13 Feb 2009 11:05:53 -0800
+
+clusto (0.1.16) unstable; urgency=low
+
+  * new upsream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 13 Feb 2009 10:55:34 -0800
+
+clusto (0.1.13) unstable; urgency=low
+
+  * new upsream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Tue, 10 Feb 2009 18:31:56 -0800
+
+clusto (0.1.12) unstable; urgency=low
+
+  * new upsream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Tue, 10 Feb 2009 12:21:46 -0800
+
+clusto (0.1.11) unstable; urgency=low
+
+  * new upsream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Mon,  9 Feb 2009 18:07:53 -0800
+
+clusto (0.1.10-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Thu,  5 Feb 2009 18:45:42 -0800
+
+clusto (0.1.8-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Ron Gorodetzky <ron@digg.com>  Wed,  4 Feb 2009 07:42:20 -0800
+
+clusto (0.1.7-1) unstable; urgency=low
+
+  * fix package so it's not a debian native package
+
+ -- Ron Gorodetzky <ron@digg.com>  Wed,  4 Feb 2009 07:42:00 -0800
+
+clusto (0.1.7) unstable; urgency=low
+
+  * New upstream release
+
+ -- Jeremy Grosser <synack@digg.com>  Tue, 27 Jan 2009 16:47:00 -0800
+
+clusto (0.1.3) unstable; urgency=low
+
+  * Initial release (Closes: #216)
+
+ -- Jeremy Grosser <jgrosser@digg.com>  Wed, 14 Jan 2009 16:48:49 -0800
+

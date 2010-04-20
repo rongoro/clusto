@@ -1,0 +1,227 @@
+#!/usr/bin/env python
+
+import clusto
+import sys
+
+from clusto import get_by_name, get_from_pools
+from clusto.drivers import PenguinServer
+from clusto.scripthelpers import init_script
+from optparse import OptionParser
+from random import sample
+from operator import itemgetter
+
+
+def sort_servers(servers):
+    tuples = []
+    for server in servers:
+        mem = server.attr_value(key='system', subkey='memory', default=None)
+        cores = server.attr_value(key='system', subkey='cpucount',
+                                  default=None)
+        disk = server.attr_value(key='system', subkey='disk', default=None)
+        tuples.append((server, mem, cores, disk))
+    tuples = sorted(tuples, key=itemgetter(3))
+    tuples = sorted(tuples, key=itemgetter(2))
+    tuples = sorted(tuples, key=itemgetter(1))
+    return [item[0] for item in tuples]
+
+
+def has_ip(server):
+    ip = server.get_ips()
+    if len(ip) > 0:
+        return True
+    else:
+        return False
+
+
+def make_memory_filter(memory):
+    def memory_filter(server):
+        sys_mem = server.attr_value(key='system', subkey='memory', default=None)
+        if not sys_mem:
+            return False
+        if sys_mem >= memory:
+            return True
+        else:
+            return False
+    return memory_filter
+
+
+def make_disk_filter(disk):
+    def disk_filter(server):
+        sys_disk = server.attr_value(key='system', subkey='disk', default=None)
+        if not sys_disk:
+            return False
+        if sys_disk >= disk:
+            return True
+        else:
+            return False
+    return disk_filter
+
+
+def make_cpu_filter(cores):
+    def cpu_filter(server):
+        sys_cores = server.attr_value(key='system', subkey='cpucount',
+                                      default=None)
+        if not sys_cores:
+            return False
+        if sys_cores >= cores:
+            return True
+        else:
+            return False
+    return cpu_filter
+
+
+def make_spindle_filter(spindles):
+    def spindle_filter(server):
+        sys_spindles = len(server.attrs(key='disk', subkey='size'))
+        if not sys_spindles:
+            return False
+        if sys_spindles >= spindles:
+            return True
+        else:
+            return False
+    return spindle_filter
+
+
+def allocate_from_datacenter(datacenter, num, filters=None):
+    pools = [pool for pool in ['unallocated', datacenter] if pool]
+    unallocated = get_from_pools(pools, clusto_types = [PenguinServer])
+
+    # When no criteria are specified, sort the servers in order to
+    # allocate the "least expensive" hardware first.
+    if len(filters) == 1:
+        unallocated = sort_servers(unallocated)
+
+    for func in filters:
+        unallocated = filter(func, unallocated)
+
+    num_available = len(unallocated)
+    if num_available < num and num_available == 0:
+        if datacenter:
+            sys.stderr.write("Cannot find any servers in %s that match "
+                             "your requirements.\n" % datacenter)
+        else:
+            sys.stderr.write("Cannot find any servers that match "
+                             "your requirements.\n" % datacenter)
+        return []
+    else:
+        num = min([num_available, num])
+        if datacenter:
+            sys.stderr.write("Found %s servers in %s that match "
+                             "your requirements, allocating %s\n" %
+                             (num_available, datacenter, num))
+        else:
+            sys.stderr.write("Found %s servers that match "
+                             "your requirements, allocating %s\n" %
+                             (num_available, num))
+        allocated = unallocated[:num]
+        return allocated
+
+
+def main():
+    usage = '%prog [options] (<datacenter>:<number>|<number>)?'
+    parser = OptionParser(usage=usage)
+    parser.add_option('-m', '--memory', dest='memory', type='int', default=0,
+                      help="Minimum system memory (in Gb) of allocated servers")
+    parser.add_option('-d', '--disk', dest='disk', type='int', default=0,
+                      help="Minimum disk space (in Gb) of allocated servers")
+    parser.add_option('-c', '--cores', dest='cores', type='int', default=0,
+                      help="Minimum number of CPU cores in allocated servers")
+    parser.add_option('-s', '--spindles', dest='spindles', type='int',
+                      default=0, help="Minimum number of disks in allocated "
+                      "servers")
+    parser.add_option('-p', '--pool', dest='pool', default=None,
+                      help="Pool to add the allocated servers to.")
+    parser.add_option('--create-pool', dest='create_pool', action='store_true',
+                      default=False, help="Create the pool if it doesn't"
+                      "exist.")
+    parser.add_option('--fai', dest='fai', default=False, action='store_true',
+                      help="FAI the allocated servers.")
+    options, args = parser.parse_args()
+
+    if len(args) < 1:
+        parser.print_help()
+        return 1
+
+    allocation = {}
+    for pair in args:
+        try:
+            datacenter, num = pair.split(':')
+        except ValueError:
+            datacenter = None
+            num = pair
+        if not datacenter:
+            datacenter = "ANY"
+        try:
+            allocation[datacenter] += int(num)
+        except KeyError:
+            allocation[datacenter] = int(num)
+
+    filters = [has_ip]
+    if options.memory:
+        filters.append(make_memory_filter(options.memory * 1000))
+    if options.disk:
+        filters.append(make_disk_filter(options.disk))
+    if options.cores:
+        filters.append(make_cpu_filter(options.cores))
+    if options.spindles:
+        filters.append(make_spindle_filter(options.spindles))
+
+    for datacenter, num in allocation.iteritems():
+        if datacenter == "ANY":
+            datacenter = None
+        sys.stderr.write("Searching for unallocated servers, this will take awhile...\n")
+        allocated = allocate_from_datacenter(datacenter, num, filters=filters)
+        pool = get_by_name('unallocated')
+        for server in allocated:
+            pool.remove(server)
+        if datacenter:
+            sys.stderr.write("These servers in %s have been removed "
+                             "from the unallocated pool:\n" % datacenter)
+        else:
+            sys.stderr.write("These servers have been removed from the unallocated pool:\n")
+        for server in allocated:
+            ip = server.get_ips()[0]
+            print "%-15s\t%s" % (ip, server.name)
+
+        pool = None
+        if options.pool:
+            try:
+                pool = get_by_name(options.pool)
+            except LookupError:
+                if options.create_pool:
+                    pool = Pool(pool)
+                else:
+                    sys.stderr.write("%s does not exist and --create-pool was not"
+                                     "specified.\n" % options.pool)
+            if pool:
+                for server in allocated:
+                    if not server in pool:
+                        pool.insert(server)
+
+        if options.fai:
+            pool = get_by_name('fai')
+            for server in allocated:
+                if not server in pool:
+                    pool.insert(server)
+                    sys.stdout.write(server.name + '\n')
+            sys.stdout.write('Are you absolutely sure you want to FAI '
+                             'these servers (yes/no)? ')
+            sys.stdout.flush()
+            try:
+                line = sys.stdin.readline().rstrip('\r\n')
+            except KeyboardInterrupt:
+                line = False
+            if line != 'yes':
+                sys.stdout.write('Aborting FAI, servers are still allocated.\n')
+                for server in allocated:
+                    pool.remove(server)
+            else:
+                for server in allocated:
+                    server.power_reboot(captcha=False)
+                    sys.stdout.write('Rebooting %s...\n' % server.name)
+
+        sys.stderr.write("\n")
+
+if __name__ == '__main__':
+	init_script()
+        sys.exit(main())
