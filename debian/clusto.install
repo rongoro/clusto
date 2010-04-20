@@ -1,1 +1,2 @@
 contrib/* /var/lib/clusto/
+conf/* /etc/clusto/
