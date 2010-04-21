@@ -10,6 +10,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   install.rst
+   getting_started.rst
    tutorial.rst
    cmdline.rst
