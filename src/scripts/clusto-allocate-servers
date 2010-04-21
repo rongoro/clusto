@@ -118,7 +118,7 @@ def allocate_from_datacenter(datacenter, num, filters=None):
 
 
 def main():
-    usage = '%prog [options] (<datacenter>:<number>|<number>)?'
+    usage = '%prog [options] <number>'
     parser = OptionParser(usage=usage)
     parser.add_option('-m', '--memory', dest='memory', type='int', default=0,
                       help="Minimum system memory (in Gb) of allocated servers")
@@ -129,11 +129,12 @@ def main():
     parser.add_option('-s', '--spindles', dest='spindles', type='int',
                       default=0, help="Minimum number of disks in allocated "
                       "servers")
+    parser.add_option('-a', '--datacenter', dest='datacenter', default=None,
+                      help="Datacenter to allocate servers from")
     parser.add_option('-p', '--pool', dest='pool', default=None,
                       help="Pool to add the allocated servers to.")
     parser.add_option('--create-pool', dest='create_pool', action='store_true',
-                      default=False, help="Create the pool if it doesn't"
-                      "exist.")
+                      default=False, help="Create the pool if it doesn't exist")
     parser.add_option('--fai', dest='fai', default=False, action='store_true',
                       help="FAI the allocated servers.")
     options, args = parser.parse_args()
@@ -142,19 +143,11 @@ def main():
         parser.print_help()
         return 1
 
-    allocation = {}
-    for pair in args:
-        try:
-            datacenter, num = pair.split(':')
-        except ValueError:
-            datacenter = None
-            num = pair
-        if not datacenter:
-            datacenter = "ANY"
-        try:
-            allocation[datacenter] += int(num)
-        except KeyError:
-            allocation[datacenter] = int(num)
+    try:
+        num = int(args[0])
+    except ValueError:
+        parser.print_help()
+        return 1
 
     filters = [has_ip]
     if options.memory:
@@ -166,61 +159,58 @@ def main():
     if options.spindles:
         filters.append(make_spindle_filter(options.spindles))
 
-    for datacenter, num in allocation.iteritems():
-        if datacenter == "ANY":
-            datacenter = None
-        sys.stderr.write("Searching for unallocated servers, this will take awhile...\n")
-        allocated = allocate_from_datacenter(datacenter, num, filters=filters)
-        pool = get_by_name('unallocated')
-        for server in allocated:
-            pool.remove(server)
-        if datacenter:
-            sys.stderr.write("These servers in %s have been removed "
-                             "from the unallocated pool:\n" % datacenter)
-        else:
-            sys.stderr.write("These servers have been removed from the unallocated pool:\n")
-        for server in allocated:
-            ip = server.get_ips()[0]
-            print "%-15s\t%s" % (ip, server.name)
+    sys.stderr.write("Searching for unallocated servers, this will take awhile...\n")
+    allocated = allocate_from_datacenter(options.datacenter, num, filters=filters)
+    pool = get_by_name('unallocated')
+    for server in allocated:
+        pool.remove(server)
+    if options.datacenter:
+        sys.stderr.write("These servers in %s have been removed "
+                         "from the unallocated pool:\n" % options.datacenter)
+    else:
+        sys.stderr.write("These servers have been removed from the unallocated pool:\n")
+    for server in allocated:
+        ip = server.get_ips()[0]
+        print "%-15s\t%s" % (ip, server.name)
 
-        pool = None
-        if options.pool:
-            try:
-                pool = get_by_name(options.pool)
-            except LookupError:
-                if options.create_pool:
-                    pool = Pool(pool)
-                else:
-                    sys.stderr.write("%s does not exist and --create-pool was not"
-                                     "specified.\n" % options.pool)
-            if pool:
-                for server in allocated:
-                    if not server in pool:
-                        pool.insert(server)
-
-        if options.fai:
-            pool = get_by_name('fai')
+    pool = None
+    if options.pool:
+        try:
+            pool = get_by_name(options.pool)
+        except LookupError:
+            if options.create_pool:
+                pool = Pool(pool)
+            else:
+                sys.stderr.write("%s does not exist and --create-pool was not"
+                                 "specified.\n" % options.pool)
+        if pool:
             for server in allocated:
                 if not server in pool:
                     pool.insert(server)
-                    sys.stdout.write(server.name + '\n')
-            sys.stdout.write('Are you absolutely sure you want to FAI '
-                             'these servers (yes/no)? ')
-            sys.stdout.flush()
-            try:
-                line = sys.stdin.readline().rstrip('\r\n')
-            except KeyboardInterrupt:
-                line = False
-            if line != 'yes':
-                sys.stdout.write('Aborting FAI, servers are still allocated.\n')
-                for server in allocated:
-                    pool.remove(server)
-            else:
-                for server in allocated:
-                    server.power_reboot(captcha=False)
-                    sys.stdout.write('Rebooting %s...\n' % server.name)
 
-        sys.stderr.write("\n")
+    if options.fai:
+        pool = get_by_name('fai')
+        for server in allocated:
+            if not server in pool:
+                pool.insert(server)
+                sys.stdout.write(server.name + '\n')
+        sys.stdout.write('Are you absolutely sure you want to FAI '
+                         'these servers (yes/no)? ')
+        sys.stdout.flush()
+        try:
+            line = sys.stdin.readline().rstrip('\r\n')
+        except KeyboardInterrupt:
+            line = False
+        if line != 'yes':
+            sys.stdout.write('Aborting FAI, servers are still allocated.\n')
+            for server in allocated:
+                pool.remove(server)
+        else:
+            for server in allocated:
+                server.power_reboot(captcha=False)
+                sys.stdout.write('Rebooting %s...\n' % server.name)
+
+    sys.stderr.write("\n")
 
 if __name__ == '__main__':
 	init_script()
