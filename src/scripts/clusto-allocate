@@ -180,7 +180,7 @@ def main():
 
     for pool in options.pools:
         try:
-            pool = get_by_name(options.pool)
+            pool = get_by_name(pool)
         except LookupError:
             if options.create_pools:
                 pool = Pool(pool)
