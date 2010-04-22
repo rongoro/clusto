@@ -131,10 +131,12 @@ def main():
                       "servers")
     parser.add_option('-a', '--datacenter', dest='datacenter', default=None,
                       help="Datacenter to allocate servers from")
-    parser.add_option('-p', '--pool', dest='pool', default=None,
-                      help="Pool to add the allocated servers to.")
-    parser.add_option('--create-pool', dest='create_pool', action='store_true',
-                      default=False, help="Create the pool if it doesn't exist")
+    parser.add_option('-p', '--pool', dest='pools', default=[],
+                      action="append", help="Pool(s) to add the allocated " +
+                      "servers to. Specify multiple times for multiple pools.")
+    parser.add_option('--create-pools', dest='create_pools',
+                      action='store_true', default=False,
+                      help="Create the pool(s) if they don't exist.")
     parser.add_option('--fai', dest='fai', default=False, action='store_true',
                       help="FAI the allocated servers.")
     options, args = parser.parse_args()
@@ -159,8 +161,10 @@ def main():
     if options.spindles:
         filters.append(make_spindle_filter(options.spindles))
 
-    sys.stderr.write("Searching for unallocated servers, this will take awhile...\n")
-    allocated = allocate_from_datacenter(options.datacenter, num, filters=filters)
+    sys.stderr.write("Searching for unallocated servers, this will take " +
+                     "awhile...\n")
+    allocated = allocate_from_datacenter(options.datacenter, num,
+                                         filters=filters)
     pool = get_by_name('unallocated')
     for server in allocated:
         pool.remove(server)
@@ -168,25 +172,25 @@ def main():
         sys.stderr.write("These servers in %s have been removed "
                          "from the unallocated pool:\n" % options.datacenter)
     else:
-        sys.stderr.write("These servers have been removed from the unallocated pool:\n")
+        sys.stderr.write("These servers have been removed from the " +
+                         "unallocated pool:\n")
     for server in allocated:
         ip = server.get_ips()[0]
         print "%-15s\t%s" % (ip, server.name)
 
-    pool = None
-    if options.pool:
+    for pool in options.pools:
         try:
-            pool = get_by_name(options.pool)
+            pool = get_by_name(pool)
         except LookupError:
-            if options.create_pool:
+            if options.create_pools:
                 pool = Pool(pool)
             else:
-                sys.stderr.write("%s does not exist and --create-pool was not"
-                                 "specified.\n" % options.pool)
-        if pool:
-            for server in allocated:
-                if not server in pool:
-                    pool.insert(server)
+                sys.stderr.write("%s does not exist and --create-pools " +
+                                 "was not specified.\n" % options.pools)
+
+        for server in allocated:
+            if not server in pool:
+                pool.insert(server)
 
     if options.fai:
         pool = get_by_name('fai')
