@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started &mdash; clusto v0.5.8 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5.8',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="clusto v0.5.8 documentation" href="index.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Welcome to clusto’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to clusto’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">clusto v0.5.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Release:</th><td class="field-body">0.5.8</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">April 22, 2010</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="from-debian-package">
+<h3>From debian package<a class="headerlink" href="#from-debian-package" title="Permalink to this headline">¶</a></h3>
+<p>Add the following to your /etc/apt/sources.list:</p>
+<div class="highlight-python"><pre>deb http://mirrors.digg.com/digg digg-public-lenny main contrib non-free</pre>
+</div>
+<p>Update the index and install clusto:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># aptitude update</span>
+<span class="c"># aptitude install clusto</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="from-source">
+<h3>From source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>$ git clone git://github.com/digg/clusto.git
+$ cd clusto
+$ python setup.py build</pre>
+</div>
+<p>As root:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># python setup.py install</span>
+<span class="c"># mkdir /etc/clusto /var/lib/clusto</span>
+<span class="c"># cp conf/* /etc/clusto/</span>
+<span class="c"># cp contrib/* /var/lib/clusto/</span>
+</pre></div>
+</div>
+<p>You may need to install additional python libraries for certain features of clusto to function properly.</p>
+<ul class="simple">
+<li>SQLAlchemy: <a class="reference external" href="http://www.sqlalchemy.org/">http://www.sqlalchemy.org/</a></li>
+<li>setuptools: <a class="reference external" href="http://peak.telecommunity.com/">http://peak.telecommunity.com/</a></li>
+<li>scapy: <a class="reference external" href="http://www.secdev.org/projects/scapy/doc/">http://www.secdev.org/projects/scapy/doc/</a></li>
+<li>ipython: <a class="reference external" href="http://ipython.scipy.org/moin/">http://ipython.scipy.org/moin/</a></li>
+<li>IPy: <a class="reference external" href="http://c0re.23.nu/c0de/IPy/">http://c0re.23.nu/c0de/IPy/</a></li>
+<li>MySQLdb: <a class="reference external" href="http://sourceforge.net/projects/mysql-python/">http://sourceforge.net/projects/mysql-python/</a></li>
+<li>libvirt: <a class="reference external" href="http://libvirt.org/">http://libvirt.org/</a></li>
+<li>simplejson: <a class="reference external" href="http://code.google.com/p/simplejson/">http://code.google.com/p/simplejson/</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Clusto is built on top of SQLAlchemy and therefore should work with any backend database available to that library. For the same of simplicity, the following documentation assumes you are using a MySQL backend.</p>
+<div class="section" id="create-a-mysql-database">
+<h3>Create a MySQL database<a class="headerlink" href="#create-a-mysql-database" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># aptitude install mysql-server
+# mysql -u root
+mysql&gt; CREATE DATABASE clusto;
+mysql&gt; GRANT ALL PRIVILEGES ON clusto.* TO 'clustouser'@'localhost' IDENTIFIED BY 'clustopass';
+mysql&gt; FLUSH PRIVILEGES;</pre>
+</div>
+</div>
+<div class="section" id="etc-clusto-clusto-conf">
+<h3>/etc/clusto/clusto.conf<a class="headerlink" href="#etc-clusto-clusto-conf" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>[clusto]
+dsn = mysql://clustouser:clustopass@127.0.0.1/clusto</pre>
+</div>
+</div>
+</div>
+<div class="section" id="populating-clusto">
+<h2>Populating clusto<a class="headerlink" href="#populating-clusto" title="Permalink to this headline">¶</a></h2>
+<p>In order to use clusto, you&#8217;ll have to make it aware of your server environment. Every environment is built differently and may require different approaches to the discovery of servers and usage of clusto&#8217;s features.</p>
+<div class="section" id="ipmanagers-for-your-subnets">
+<h3>IPManagers for your subnets<a class="headerlink" href="#ipmanagers-for-your-subnets" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="simpleentitynamemanager">
+<h3>SimpleEntityNameManager<a class="headerlink" href="#simpleentitynamemanager" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="creating-a-datacenter">
+<h3>Creating a datacenter<a class="headerlink" href="#creating-a-datacenter" title="Permalink to this headline">¶</a></h3>
+<p>Clusto comes ready to use with Basic drivers for a variety of entities and devices most systems engineers are familiar with. These Basic drivers can be used directly if only basic functionality is desired, but are intended to be subclassed and overridden with different variables and method. It is considered a best practice to create subclasses in case you need to customize a driver later on.
+This is an example of a custom datacenter driver representing a colocation facility. (src/clusto/drivers/locations/datacenters/equinixdatacenter.py):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">basicdatacenter</span> <span class="k">import</span> <span class="n">BasicDatacenter</span>
+
+<span class="k">class</span> <span class="nc">EquinixDatacenter</span><span class="p">(</span><span class="n">BasicDatacenter</span><span class="p">):</span>
+       <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">       Equinix datacenter driver</span>
+<span class="sd">       &#39;&#39;&#39;</span>
+
+       <span class="n">_driver_name</span> <span class="o">=</span> <span class="s">&#39;equinixdatacenter&#39;</span>
+</pre></div>
+</div>
+<p>Add the following to src/clusto/drivers/locations/datacenters/__init__.py:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">equinixdatacenter</span> <span class="k">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>This subclass is an example of a simple wrapper that does not provide additional functionality beyond distinguishing this type of datacenter from another one.</p>
+<p>At clusto&#8217;s core, it&#8217;s a tool for gluing together other services, protocols, and logic in a data-centric way. An example of such usage would be a method that opens a ticket with the colo provider for a remote hands action. Add the following to equinixdatacenter.py:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">smtplib</span> <span class="k">import</span> <span class="n">SMTP</span>
+<span class="k">def</span> <span class="nf">remote_hands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="s">&#39;low&#39;</span><span class="p">,</span> <span class="n">mail_server</span><span class="o">=</span><span class="s">&#39;mail.example.com&#39;</span><span class="p">,</span> <span class="n">mail_from</span><span class="o">=</span><span class="s">&#39;clusto@example.com&#39;</span><span class="p">,</span> <span class="n">mail_to</span><span class="o">=</span><span class="s">&#39;remotehands@datacenter.net&#39;</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;From: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s">To: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s">Subject: Remote hands request: </span><span class="si">%s</span><span class="s"> priority</span><span class="se">\r\n\r\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mail_from</span><span class="p">,</span> <span class="n">mail_to</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+        <span class="n">server</span> <span class="o">=</span> <span class="n">SMTP</span><span class="p">(</span><span class="n">mail_server</span><span class="p">)</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">mail_from</span><span class="p">,</span> <span class="n">mail_to</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Using clusto-shell we can instantiate our new datacenter and test the remote_hands method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">clusto.drivers</span> <span class="k">import</span> <span class="n">EquinixDatacenter</span>
+
+<span class="n">datacenter</span> <span class="o">=</span> <span class="n">EquinixDatacenter</span><span class="p">(</span><span class="s">&#39;eqix-sv3&#39;</span><span class="p">)</span>
+<span class="n">datacenter</span><span class="o">.</span><span class="n">remote_hands</span><span class="p">(</span><span class="s">&#39;Turn on power for new racks in my cage&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="s">&#39;high&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-racks-to-the-datacenter">
+<h3>Adding racks to the datacenter<a class="headerlink" href="#adding-racks-to-the-datacenter" title="Permalink to this headline">¶</a></h3>
+<p>Rack factories are fairly specific to each organization&#8217;s environment... Common rack layouts are uncommon. For these types of highly-customized features, you&#8217;ll need to modify the files in /var/lib/clusto to suit your needs. Clusto ships with some examples of the files used by Digg.</p>
+<p>Take a look at /var/lib/clusto/rackfactory.py to get an idea of how to programatically define rack layouts.</p>
+<p>Continuing our example from above, let&#8217;s assume the remote hands at the datacenter plugged in your new rack and closed the ticket. Now you want to be able to manipulate the rack in clusto and start adding servers to it. Let&#8217;s go back to clusto-shell:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">clusto.drivers</span> <span class="k">import</span> <span class="n">APCRack</span>
+
+<span class="n">rack</span> <span class="o">=</span> <span class="n">APCRack</span><span class="p">(</span><span class="s">&#39;sv3-001&#39;</span><span class="p">)</span>
+<span class="n">rack</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&#39;racklayout&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s">&#39;201001&#39;</span><span class="p">)</span>
+<span class="n">datacenter</span> <span class="o">=</span> <span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;eqix-sv3&#39;</span><span class="p">)</span>
+<span class="n">datacenter</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">rack</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That&#8217;s all you need to do to create a new rack instance and insert it into a datacenter. The set_attr for rack layout will be explained in the following section.</p>
+</div>
+<div class="section" id="rack-factory">
+<h3>Rack factory<a class="headerlink" href="#rack-factory" title="Permalink to this headline">¶</a></h3>
+<p>If you have more than one rack using the same layout of devices and connections between them, clusto can ease a lot of the data entry involved with creating and populating new racks with custom RackFactory classes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">rackfactory</span> <span class="k">import</span> <span class="n">get_factory</span>
+
+<span class="n">factory</span> <span class="o">=</span> <span class="n">get_factory</span><span class="p">(</span><span class="s">&#39;sv3-001&#39;</span><span class="p">)</span>
+<span class="n">factory</span><span class="o">.</span><span class="n">connect_ports</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The get_factory call will get the &#8216;sv3-001&#8217; rack instance from clusto and lookup an attribute of key=&#8217;rackfactory&#8217; to determine which factory class should be used to fill in the rest of the information. The __init__ method of Digg201001RackFactory also creates network, console, and power switch instances with names based on the name of the rack.</p>
+<p>The connect_ports method ensures that this rack is in the datacenter, that the network, console, and power instances are in this rack, and that their ports are all connected as intended. This gives us the basic structure of everything that will be identical across all racks with this layout.</p>
+</div>
+<div class="section" id="snmp-trap-listener">
+<h3>SNMP trap listener<a class="headerlink" href="#snmp-trap-listener" title="Permalink to this headline">¶</a></h3>
+<p>One of the services that ships with clusto called clusto-snmptrapd, will listen for SNMP traps from Cisco switches implementing the CISCO-MAC-NOTIFICATION-MIB which can be enabled with the following configuration on supported IOS releases:</p>
+<div class="highlight-python"><pre>snmp-server enable traps mac-notification change
+snmp-server host &lt;ip&gt; version 2c &lt;community&gt;  mac-notification
+mac address-table notification change
+!
+interface &lt;int&gt;
+  snmp trap mac-notification change added</pre>
+</div>
+<p>When clusto-snmptrapd receives one of these traps, it gathers the IP of the switch, the port number, the VLAN that learned the MAC, and the MAC itself. It then queries the clusto database for the switch IP and checks for an attribute of key=&#8217;snmp&#8217;, subkey=&#8217;discovery&#8217;, value=1... If this attribute is set on the switch or any of it&#8217;s parents, the daemon checks to see if there&#8217;s an object connected to the switch port in clusto. If not, then we assume this is a new server and create a new PenguinServer object with a name generated from a SimpleEntityNameManager called &#8216;servernames&#8217;. The daemon then gets the switch&#8217;s parent rack, gets the rack factory for that rack, then calls add_server(server, switchport) on the rack factory instance.</p>
+<p>It&#8217;s a bit of a complicated process, but the end result is that new servers get added to clusto automatically as soon as they appear on the network without any human intervention aside from creating the rack instance.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Getting Started</a><ul>
+<li><a class="reference external" href="#installation">Installation</a><ul>
+<li><a class="reference external" href="#from-debian-package">From debian package</a></li>
+<li><a class="reference external" href="#from-source">From source</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#configuration">Configuration</a><ul>
+<li><a class="reference external" href="#create-a-mysql-database">Create a MySQL database</a></li>
+<li><a class="reference external" href="#etc-clusto-clusto-conf">/etc/clusto/clusto.conf</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#populating-clusto">Populating clusto</a><ul>
+<li><a class="reference external" href="#ipmanagers-for-your-subnets">IPManagers for your subnets</a></li>
+<li><a class="reference external" href="#simpleentitynamemanager">SimpleEntityNameManager</a></li>
+<li><a class="reference external" href="#creating-a-datacenter">Creating a datacenter</a></li>
+<li><a class="reference external" href="#adding-racks-to-the-datacenter">Adding racks to the datacenter</a></li>
+<li><a class="reference external" href="#rack-factory">Rack factory</a></li>
+<li><a class="reference external" href="#snmp-trap-listener">SNMP trap listener</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">Welcome to clusto&#8217;s documentation!</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="tutorial.html"
+                                  title="next chapter">Tutorial</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="sources/getting_started.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to clusto’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">clusto v0.5.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Digg, Inc..
+      Last updated on Apr 22, 2010.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>

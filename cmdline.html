@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command line usage &mdash; clusto v0.5.8 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5.8',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="clusto v0.5.8 documentation" href="index.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">clusto v0.5.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="command-line-usage">
+<h1>Command line usage<a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Release:</th><td class="field-body">0.5.8</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">April 22, 2010</td>
+</tr>
+</tbody>
+</table>
+<p>There are a number of interactive clusto commands you can use for inspecting and manipulating the database. A lot of them are broken because we haven&#8217;t used them in a while. Feel free to fix them when you&#8217;re done reading this doc.</p>
+<div class="section" id="clusto-info">
+<h2>clusto info<a class="headerlink" href="#clusto-info" title="Permalink to this headline">¶</a></h2>
+<p>Gives a quick overview of the important attributes of an object identified by name, IP, or MAC address:</p>
+<div class="highlight-python"><pre>$ clusto info s0233
+Name:                s0233
+Type:                server
+IP:                  10.2.129.191
+Parents:             sjc1-017, production, rofl-gamma, wtf-gamma, zomg-gamma-nokill
+
+Serial:              P1238090236
+Memory:              16 GB
+Disk:                1500 GB (3)
+CPU Cores:           8
+
+nic-eth(1)           mac = 00:a0:d1:e8:57:70
+nic-eth(2)           mac = 00:a0:d1:e8:57:71</pre>
+</div>
+</div>
+<div class="section" id="clusto-attr">
+<h2>clusto attr<a class="headerlink" href="#clusto-attr" title="Permalink to this headline">¶</a></h2>
+<p>Manipulates the attributes of an object:</p>
+<div class="highlight-python"><pre>$ clusto attr add -k puppet -s class -v site::ldap-client s0245
+$ clusto attr show -m -k puppet -s class s0245
+KEY      SUBKEY     NUM    VALUE
+puppet   class      None   site::ldap-client</pre>
+</div>
+</div>
+<div class="section" id="clusto-pool">
+<h2>clusto pool<a class="headerlink" href="#clusto-pool" title="Permalink to this headline">¶</a></h2>
+<p>Manipulates the contents of pool objects:</p>
+<div class="highlight-python"><pre>$ clusto pool create testing
+$ clusto pool insert s0245
+$ clusto pool show testing
+s0245
+$ clusto pool remove testing s0245
+$ clusto pool delete testing</pre>
+</div>
+</div>
+<div class="section" id="clusto-shell">
+<h2>clusto shell<a class="headerlink" href="#clusto-shell" title="Permalink to this headline">¶</a></h2>
+<p>Probably the most powerful command for working with clusto, this command spawns an ipython shell with the clusto database connection initialized and a few clusto &#8220;builtins&#8221; imported into the local scope. This is a great way to test out new ideas, run complicated one-shot queries against clusto, or just to get more comfortable with the clusto interface. If you want to create objects, you&#8217;ll have to do:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">clusto.drivers</span> <span class="k">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="clusto-tree">
+<h2>clusto tree<a class="headerlink" href="#clusto-tree" title="Permalink to this headline">¶</a></h2>
+<p>Outputs a tree-like listing of objects contained within other objects:</p>
+<div class="highlight-python"><pre>$ clusto tree sjc1-003
+name: sjc1-003
+   name: sjc1-003-pwr1
+   name: sjc1-003-sw1
+   name: sjc1-003-ts1
+   name: s0001
+   name: s0002
+...
+$ clusto tree sjc1-003 name system
+name: sjc1-003 system: None
+   name: sjc1-003-pwr1 system: None
+   name: sjc1-003-sw1  system: None
+   name: sjc1-003-ts1  system: None
+   name: s0001 system: [u'P1238110062\n', 8]
+   name: s0002 system: [u'P1238110064\n', 8]
+   name: s0004 system: [u'P1238110066\n', 8]</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Command line usage</a><ul>
+<li><a class="reference external" href="#clusto-info">clusto info</a></li>
+<li><a class="reference external" href="#clusto-attr">clusto attr</a></li>
+<li><a class="reference external" href="#clusto-pool">clusto pool</a></li>
+<li><a class="reference external" href="#clusto-shell">clusto shell</a></li>
+<li><a class="reference external" href="#clusto-tree">clusto tree</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="tutorial.html"
+                                  title="previous chapter">Tutorial</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="sources/cmdline.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">clusto v0.5.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Digg, Inc..
+      Last updated on Apr 22, 2010.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>

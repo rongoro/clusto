@@ -1,6 +1,0 @@
-#!/usr/bin/env python
-from clusto.services import dhcp
-
-if __name__ == '__main__':
-	server = dhcp.ClustoDHCPServer()
-	server.run()

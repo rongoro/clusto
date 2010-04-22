@@ -1,1 +1,0 @@
-jquery-1.2.2.pack.js

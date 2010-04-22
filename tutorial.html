@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; clusto v0.5.8 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5.8',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="clusto v0.5.8 documentation" href="index.html" />
+    <link rel="next" title="Command line usage" href="cmdline.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="cmdline.html" title="Command line usage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">clusto v0.5.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Release:</th><td class="field-body">0.5.8</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">April 22, 2010</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="setting-up-a-development-environment">
+<h2>Setting up a development environment<a class="headerlink" href="#setting-up-a-development-environment" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>$ git clone ops.git.digg.internal:/srv/git/software/clusto.git
+$ cd clusto
+$ mkdir env
+$ virtualenv env
+$ source env/bin/activate
+$ python setup.py install</pre>
+</div>
+<p>At this point, you have a virtualenv populated with the latest clusto code. Every time you want to use the new clusto db, you&#8217;ll need to do this:</p>
+<div class="highlight-python"><pre>$ cd clusto
+$ source env/bin/activate
+$ export CLUSTODSN="mysql://clustoman:clustopass@localhost/clusto"</pre>
+</div>
+<p>I usually edit the activate script and add the export command somewhere near the top.</p>
+</div>
+<div class="section" id="writing-clusto-scripts">
+<h2>Writing clusto scripts<a class="headerlink" href="#writing-clusto-scripts" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="initialization">
+<h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">from</span> <span class="nn">clusto.scripthelpers</span> <span class="k">import</span> <span class="n">init_script</span>
+<span class="k">from</span> <span class="nn">clusto.drivers</span> <span class="k">import</span> <span class="o">*</span>
+<span class="k">import</span> <span class="nn">clusto</span>
+
+<span class="n">init_script</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="transactions">
+<h3>Transactions<a class="headerlink" href="#transactions" title="Permalink to this headline">¶</a></h3>
+<p>Clusto stores versioning information for all objects. By default, all modifications to the clusto database are atomic. If you find yourself making a large number of related modifications at the same time, you may enclose them in a transaction so that the changeset is treated as a single version:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
+    <span class="n">clusto</span><span class="o">.</span><span class="n">begin_transaction</span><span class="p">()</span>
+    <span class="c"># make a bunch of changes to objects</span>
+    <span class="n">clusto</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">clusto</span><span class="o">.</span><span class="n">rollback_transaction</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="server-creation-workflow">
+<h3>Server creation workflow<a class="headerlink" href="#server-creation-workflow" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">names</span> <span class="o">=</span> <span class="n">clusto</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;servernames&#39;</span><span class="p">)</span>
+<span class="n">server</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">PenguinServer</span><span class="p">)</span>
+
+<span class="c"># Put this server in a specific RU</span>
+<span class="n">rack</span> <span class="o">=</span> <span class="n">clusto</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;sjc1-000&#39;</span><span class="p">)</span>
+<span class="n">rack</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="mf">1</span><span class="p">)</span>
+
+<span class="c"># Connect eth0 to a switch port and bind a MAC address and IP</span>
+<span class="n">switch</span> <span class="o">=</span> <span class="n">clusto</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;sjc1-000-sw1&#39;</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">connect_ports</span><span class="p">(</span><span class="s">&#39;nic-eth&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="n">switch</span><span class="p">,</span> <span class="mf">1</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">set_port_attr</span><span class="p">(</span><span class="s">&#39;nic-eth&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="s">&#39;mac&#39;</span><span class="p">,</span> <span class="s">&#39;00:11:22:33:44:55&#39;</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">bind_ip_to_port</span><span class="p">(</span><span class="s">&#39;1.2.3.4&#39;</span><span class="p">,</span> <span class="s">&#39;nic-eth&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">)</span>
+
+<span class="c"># Connect power to an outlet</span>
+<span class="n">power</span> <span class="o">=</span> <span class="n">clusto</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;sjc1-000-pwr1&#39;</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">connect_ports</span><span class="p">(</span><span class="s">&#39;pwr-nema-5&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="s">&#39;aa1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-a-server-to-a-pool">
+<h3>Add a server to a pool<a class="headerlink" href="#add-a-server-to-a-pool" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pool</span> <span class="o">=</span> <span class="n">clusto</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;development&#39;</span><span class="p">)</span>
+<span class="n">pool</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="remove-a-server-from-a-pool">
+<h3>Remove a server from a pool<a class="headerlink" href="#remove-a-server-from-a-pool" title="Permalink to this headline">¶</a></h3>
+<p>pool.remove(server)
+Set an attribute on an object</p>
+<p>pool = clusto.get_by_name(&#8216;n00b_read&#8217;)
+pool.set_attr(key=&#8217;mysql&#8217;, subkey=&#8217;port&#8217;, value=3309)</p>
+</div>
+</div>
+<div class="section" id="querying-clusto">
+<h2>Querying clusto<a class="headerlink" href="#querying-clusto" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="get-a-list-of-servers-in-a-pool">
+<h3>Get a list of servers in a pool<a class="headerlink" href="#get-a-list-of-servers-in-a-pool" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>servers = clusto.get_by_name('production').contents(clusto_types=['server'])
+repr(servers)
+[BasicServer(name=s0014, type=server, driver=basicserver),
+BasicServer(name=s0015, type=server, driver=basicserver),
+BasicServer(name=s0016, type=server, driver=basicserver),
+BasicServer(name=s0017, type=server, driver=basicserver),
+BasicServer(name=s0018, type=server, driver=basicserver),
+BasicServer(name=s0019, type=server, driver=basicserver),
+...</pre>
+</div>
+</div>
+<div class="section" id="find-servers-with-the-given-ip-address">
+<h3>Find servers with the given IP address<a class="headerlink" href="#find-servers-with-the-given-ip-address" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">servers</span> <span class="o">=</span> <span class="n">IPManager</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s">&#39;10.2.128.103&#39;</span><span class="p">)</span>
+<span class="nb">repr</span><span class="p">(</span><span class="n">servers</span><span class="p">)</span>
+<span class="p">[</span><span class="n">BasicServer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">mgmt</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="n">basicserver</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="find-all-ips-bound-to-a-given-server">
+<h3>Find all IPs bound to a given server<a class="headerlink" href="#find-all-ips-bound-to-a-given-server" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">iplist</span> <span class="o">=</span> <span class="n">clusto</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;s0000&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_ips</span><span class="p">()</span>
+<span class="nb">repr</span><span class="p">(</span><span class="n">iplist</span><span class="p">)</span>
+<span class="p">[</span><span class="s">&#39;10.2.128.107&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">Tutorial</a><ul>
+<li><a class="reference external" href="#setting-up-a-development-environment">Setting up a development environment</a></li>
+<li><a class="reference external" href="#writing-clusto-scripts">Writing clusto scripts</a><ul>
+<li><a class="reference external" href="#initialization">Initialization</a></li>
+<li><a class="reference external" href="#transactions">Transactions</a></li>
+<li><a class="reference external" href="#server-creation-workflow">Server creation workflow</a></li>
+<li><a class="reference external" href="#add-a-server-to-a-pool">Add a server to a pool</a></li>
+<li><a class="reference external" href="#remove-a-server-from-a-pool">Remove a server from a pool</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#querying-clusto">Querying clusto</a><ul>
+<li><a class="reference external" href="#get-a-list-of-servers-in-a-pool">Get a list of servers in a pool</a></li>
+<li><a class="reference external" href="#find-servers-with-the-given-ip-address">Find servers with the given IP address</a></li>
+<li><a class="reference external" href="#find-all-ips-bound-to-a-given-server">Find all IPs bound to a given server</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="getting_started.html"
+                                  title="previous chapter">Getting Started</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="cmdline.html"
+                                  title="next chapter">Command line usage</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="sources/tutorial.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="cmdline.html" title="Command line usage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             >previous</a> |</li>
+        <li><a href="index.html">clusto v0.5.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Digg, Inc..
+      Last updated on Apr 22, 2010.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>
