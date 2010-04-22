@@ -147,13 +147,12 @@ SNMP trap listener
 ~~~~~~~~~~~~~~~~~~
 One of the services that ships with clusto called clusto-snmptrapd, will listen for SNMP traps from Cisco switches implementing the CISCO-MAC-NOTIFICATION-MIB which can be enabled with the following configuration on supported IOS releases::
 
- snmp-server host clustoserver.example.com traps version 2c
- snmp-server trap-source Vlan1
- snmp-server enable traps MAC-Notification
-
- interface FastEthernet0/1
-   switchport mode access
-   snmp trap mac-notification added
+ snmp-server enable traps mac-notification change
+ snmp-server host <ip> version 2c <community>  mac-notification
+ mac address-table notification change
+ !
+ interface <int>
+   snmp trap mac-notification change added
 
 When clusto-snmptrapd receives one of these traps, it gathers the IP of the switch, the port number, the VLAN that learned the MAC, and the MAC itself. It then queries the clusto database for the switch IP and checks for an attribute of key='snmp', subkey='discovery', value=1... If this attribute is set on the switch or any of it's parents, the daemon checks to see if there's an object connected to the switch port in clusto. If not, then we assume this is a new server and create a new PenguinServer object with a name generated from a SimpleEntityNameManager called 'servernames'. The daemon then gets the switch's parent rack, gets the rack factory for that rack, then calls add_server(server, switchport) on the rack factory instance.
 
