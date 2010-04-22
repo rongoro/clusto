@@ -131,10 +131,12 @@ def main():
                       "servers")
     parser.add_option('-a', '--datacenter', dest='datacenter', default=None,
                       help="Datacenter to allocate servers from")
-    parser.add_option('-p', '--pool', dest='pool', default=None,
-                      help="Pool to add the allocated servers to.")
-    parser.add_option('--create-pool', dest='create_pool', action='store_true',
-                      default=False, help="Create the pool if it doesn't exist")
+    parser.add_option('-p', '--pool', dest='pools', default=None,
+                      action="append", help="Pool(s) to add the allocated " +
+                      "servers to. Specify multiple times for multiple pools.")
+    parser.add_option('--create-pools', dest='create_pools',
+                      action='store_true', default=False,
+                      help="Create the pool(s) if they don't exist.")
     parser.add_option('--fai', dest='fai', default=False, action='store_true',
                       help="FAI the allocated servers.")
     options, args = parser.parse_args()
@@ -176,17 +178,16 @@ def main():
         ip = server.get_ips()[0]
         print "%-15s\t%s" % (ip, server.name)
 
-    pool = None
-    if options.pool:
-        try:
-            pool = get_by_name(options.pool)
-        except LookupError:
-            if options.create_pool:
-                pool = Pool(pool)
-            else:
-                sys.stderr.write("%s does not exist and --create-pool was not"
-                                 "specified.\n" % options.pool)
-        if pool:
+    if options.pools:
+        for pool in options.pools:
+            try:
+                pool = get_by_name(options.pool)
+            except LookupError:
+                if options.create_pools:
+                    pool = Pool(pool)
+                else:
+                    sys.stderr.write("%s does not exist and --create-pools " +
+                                     "was not specified.\n" % options.pool)
             for server in allocated:
                 if not server in pool:
                     pool.insert(server)
