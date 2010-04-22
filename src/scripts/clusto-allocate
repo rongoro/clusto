@@ -159,8 +159,10 @@ def main():
     if options.spindles:
         filters.append(make_spindle_filter(options.spindles))
 
-    sys.stderr.write("Searching for unallocated servers, this will take awhile...\n")
-    allocated = allocate_from_datacenter(options.datacenter, num, filters=filters)
+    sys.stderr.write("Searching for unallocated servers, this will take " +
+                     "awhile...\n")
+    allocated = allocate_from_datacenter(options.datacenter, num,
+                                         filters=filters)
     pool = get_by_name('unallocated')
     for server in allocated:
         pool.remove(server)
@@ -168,7 +170,8 @@ def main():
         sys.stderr.write("These servers in %s have been removed "
                          "from the unallocated pool:\n" % options.datacenter)
     else:
-        sys.stderr.write("These servers have been removed from the unallocated pool:\n")
+        sys.stderr.write("These servers have been removed from the " +
+                         "unallocated pool:\n")
     for server in allocated:
         ip = server.get_ips()[0]
         print "%-15s\t%s" % (ip, server.name)
