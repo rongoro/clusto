@@ -1,81 +1,33 @@
 ##################################
-  Getting Started
+  Using clusto
 ##################################
 
 :Release: |version|
 :Date: |today|
 
-Installation
-------------
-
-From debian package
-~~~~~~~~~~~~~~~~~~~
-Add the following to your /etc/apt/sources.list::
-
- deb http://mirrors.digg.com/digg digg-public-lenny main contrib non-free
-
-Update the index and install clusto::
-
- # aptitude update
- # aptitude install clusto
-
-From source
-~~~~~~~~~~~
-::
-
- $ git clone git://github.com/digg/clusto.git
- $ cd clusto
- $ python setup.py build
-
-As root::
-
- # python setup.py install
- # mkdir /etc/clusto /var/lib/clusto
- # cp conf/* /etc/clusto/
- # cp contrib/* /var/lib/clusto/
-
-You may need to install additional python libraries for certain features of clusto to function properly.
-
-- SQLAlchemy: http://www.sqlalchemy.org/
-- setuptools: http://peak.telecommunity.com/
-- scapy: http://www.secdev.org/projects/scapy/doc/
-- ipython: http://ipython.scipy.org/moin/
-- IPy: http://c0re.23.nu/c0de/IPy/
-- MySQLdb: http://sourceforge.net/projects/mysql-python/
-- libvirt: http://libvirt.org/
-- simplejson: http://code.google.com/p/simplejson/
-
-Configuration
--------------
-
-Clusto is built on top of SQLAlchemy and therefore should work with any backend database available to that library. For the same of simplicity, the following documentation assumes you are using a MySQL backend.
-
-Create a MySQL database
-~~~~~~~~~~~~~~~~~~~~~~~
-::
-
- # aptitude install mysql-server
- # mysql -u root
- mysql> CREATE DATABASE clusto;
- mysql> GRANT ALL PRIVILEGES ON clusto.* TO 'clustouser'@'localhost' IDENTIFIED BY 'clustopass';
- mysql> FLUSH PRIVILEGES;
-
-/etc/clusto/clusto.conf
-~~~~~~~~~~~~~~~~~~~~~~~
-::
-
- [clusto]
- dsn = mysql://clustouser:clustopass@127.0.0.1/clusto
-
-Populating clusto
------------------
 In order to use clusto, you'll have to make it aware of your server environment. Every environment is built differently and may require different approaches to the discovery of servers and usage of clusto's features.
 
 IPManagers for your subnets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Clusto requires that every IP address you bind to a server must be associated with an IPManager instance for that subnet. This allows you to do dynamic allocation of addresses and associate related information (eg. netmask, broadcast) with every address. These features are especially useful when using clusto's DHCP server.
+
+::
+
+ from clusto.drivers import IPManager
+ ipman = IPManager('subnet-dmz', baseip='192.168.20.0', netmask='255.255.252.0')
 
 SimpleEntityNameManager
 ~~~~~~~~~~~~~~~~~~~~~~~
+In order to automatically discover and create new server objects, Clusto needs to be able to generate new names for objects. SimpleEntityNameManagers provide an allocate(Driver) method that creates a new instance and generates a name for it.
+
+::
+
+ from clusto.drivers import SimpleEntityNameManager, PenguinServer
+
+ names = SimpleEntityNameManager('servernames', basename='s', digits=4)
+ server = names.allocate(PenguinServer)
+
+This will create a new server instance with a name like "s0000"
 
 Creating a datacenter
 ~~~~~~~~~~~~~~~~~~~~~

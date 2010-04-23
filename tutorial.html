@@ -20,7 +20,7 @@
     <script type="text/javascript" src="static/jquery.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="clusto v0.5.22 documentation" href="index.html" />
-    <link rel="next" title="Command line usage" href="cmdline.html" />
+    <link rel="next" title="Using clusto" href="using.html" />
     <link rel="prev" title="Getting Started" href="getting_started.html" /> 
   </head>
   <body>
@@ -31,7 +31,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="cmdline.html" title="Command line usage"
+          <a href="using.html" title="Using clusto"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="getting_started.html" title="Getting Started"
@@ -59,17 +59,17 @@
 </table>
 <div class="section" id="setting-up-a-development-environment">
 <h2>Setting up a development environment<a class="headerlink" href="#setting-up-a-development-environment" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><pre>$ git clone ops.git.digg.internal:/srv/git/software/clusto.git
+<div class="highlight-python"><pre>$ git clone git://github.com/digg/clusto.git
 $ cd clusto
 $ mkdir env
 $ virtualenv env
 $ source env/bin/activate
 $ python setup.py install</pre>
 </div>
-<p>At this point, you have a virtualenv populated with the latest clusto code. Every time you want to use the new clusto db, you&#8217;ll need to do this:</p>
+<p>At this point, you have a virtualenv populated with the latest clusto code. Every time you want to use the new clusto code, you&#8217;ll need to do this:</p>
 <div class="highlight-python"><pre>$ cd clusto
 $ source env/bin/activate
-$ export CLUSTODSN="mysql://clustoman:clustopass@localhost/clusto"</pre>
+$ export CLUSTODSN="sqlite:////path/to/sqlite.db"</pre>
 </div>
 <p>I usually edit the activate script and add the export command somewhere near the top.</p>
 </div>
@@ -127,10 +127,16 @@ $ export CLUSTODSN="mysql://clustoman:clustopass@localhost/clusto"</pre>
 </div>
 <div class="section" id="remove-a-server-from-a-pool">
 <h3>Remove a server from a pool<a class="headerlink" href="#remove-a-server-from-a-pool" title="Permalink to this headline">¶</a></h3>
-<p>pool.remove(server)
-Set an attribute on an object</p>
-<p>pool = clusto.get_by_name(&#8216;n00b_read&#8217;)
-pool.set_attr(key=&#8217;mysql&#8217;, subkey=&#8217;port&#8217;, value=3309)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pool</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="set-an-attribute-on-an-object">
+<h3>Set an attribute on an object<a class="headerlink" href="#set-an-attribute-on-an-object" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pool</span> <span class="o">=</span> <span class="n">clusto</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s">&#39;n00b_read&#39;</span><span class="p">)</span>
+<span class="n">pool</span><span class="o">.</span><span class="n">set_attr</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&#39;mysql&#39;</span><span class="p">,</span> <span class="n">subkey</span><span class="o">=</span><span class="s">&#39;port&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">3309</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="querying-clusto">
@@ -183,6 +189,7 @@ BasicServer(name=s0019, type=server, driver=basicserver),
 <li><a class="reference external" href="#server-creation-workflow">Server creation workflow</a></li>
 <li><a class="reference external" href="#add-a-server-to-a-pool">Add a server to a pool</a></li>
 <li><a class="reference external" href="#remove-a-server-from-a-pool">Remove a server from a pool</a></li>
+<li><a class="reference external" href="#set-an-attribute-on-an-object">Set an attribute on an object</a></li>
 </ul>
 </li>
 <li><a class="reference external" href="#querying-clusto">Querying clusto</a><ul>
@@ -199,8 +206,8 @@ BasicServer(name=s0019, type=server, driver=basicserver),
             <p class="topless"><a href="getting_started.html"
                                   title="previous chapter">Getting Started</a></p>
             <h4>Next topic</h4>
-            <p class="topless"><a href="cmdline.html"
-                                  title="next chapter">Command line usage</a></p>
+            <p class="topless"><a href="using.html"
+                                  title="next chapter">Using clusto</a></p>
             <h3>This Page</h3>
             <ul class="this-page-menu">
               <li><a href="sources/tutorial.txt"
@@ -230,7 +237,7 @@ BasicServer(name=s0019, type=server, driver=basicserver),
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="cmdline.html" title="Command line usage"
+          <a href="using.html" title="Using clusto"
              >next</a> |</li>
         <li class="right" >
           <a href="getting_started.html" title="Getting Started"
