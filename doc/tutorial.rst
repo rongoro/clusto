@@ -9,18 +9,18 @@ Setting up a development environment
 ------------------------------------
 ::
 
-$ git clone ops.git.digg.internal:/srv/git/software/clusto.git
+$ git clone git://github.com/digg/clusto.git
 $ cd clusto
 $ mkdir env
 $ virtualenv env
 $ source env/bin/activate
 $ python setup.py install
 
-At this point, you have a virtualenv populated with the latest clusto code. Every time you want to use the new clusto db, you'll need to do this::
+At this point, you have a virtualenv populated with the latest clusto code. Every time you want to use the new clusto code, you'll need to do this::
 
 $ cd clusto
 $ source env/bin/activate
-$ export CLUSTODSN="mysql://clustoman:clustopass@localhost/clusto"
+$ export CLUSTODSN="sqlite:////path/to/sqlite.db"
 
 I usually edit the activate script and add the export command somewhere near the top.
 
@@ -79,12 +79,16 @@ Add a server to a pool
 
 Remove a server from a pool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
 
-pool.remove(server)
+ pool.remove(server)
+
 Set an attribute on an object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
 
-pool = clusto.get_by_name('n00b_read')
-pool.set_attr(key='mysql', subkey='port', value=3309)
+ pool = clusto.get_by_name('n00b_read')
+ pool.set_attr(key='mysql', subkey='port', value=3309)
 
 Querying clusto
 ---------------

@@ -12,4 +12,5 @@ Contents:
 
    getting_started.rst
    tutorial.rst
+   using.rst
    cmdline.rst
