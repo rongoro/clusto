@@ -1,3 +1,11 @@
+clusto (0.5.22-1) unstable; urgency=low
+
+  * Added more documentation.
+  * setup.py fixup
+  * disabled the xen stuff that isn't ready
+
+ -- Ron Gorodetzky <ron@digg.com>  Fri, 23 Apr 2010 12:10:29 -0700
+
 clusto (0.5.21-1) unstable; urgency=low
 
   * minor cleanup

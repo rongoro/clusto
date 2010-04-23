@@ -1,3 +1,5 @@
 from basicserver import *
 from penguincomputing import *
-from xenvirtualserver import *
+
+## this isn't ready yet
+#from xenvirtualserver import * 
