@@ -265,7 +265,7 @@ class Driver(object):
                 query = query.filter_by(**{typename+'_value':value})
 
         if number is not ():
-            if isinstance(number, bool):
+            if isinstance(number, bool) or number is None:
                 if number == True:
                     query = query.filter(Attribute.number != None)
                 else:
