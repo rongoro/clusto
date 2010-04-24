@@ -172,7 +172,7 @@ class ResourceManager(Driver):
         try:
             if resource is ():                      
                 for res in self.resources(thing):
-                    thing.del_attrs(self._attr_name, number=number)
+                    thing.del_attrs(self._attr_name, number=res.number)
 
             elif resource and not self.available(resource, number):
                 resource, number = self.ensure_type(resource, number)
