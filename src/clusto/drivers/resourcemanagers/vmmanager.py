@@ -7,7 +7,7 @@ use of the ResourceManager plumbing where appropriate.
 """
 
 import clusto
-from clusto.drivers.devices.servers import BasicServer
+from clusto.drivers.devices.servers import BasicServer, BasicVirtualServer
 from clusto.drivers.base import ResourceManager
 from clusto.exceptions import ResourceException
 
@@ -37,7 +37,7 @@ class VMManager(ResourceManager):
         return (resource, number)
     
         
-    def insert(self, thing, memory=None, disk=None):
+    def insert(self, thing, memory=None, disk=None, cpucount=None):
         # insert into self and also add attributes that will help with  allocation
         if thing.type != BasicServer._clusto_type:
             raise ResourceException("Only servers can be inserted into "
@@ -47,31 +47,15 @@ class VMManager(ResourceManager):
         
         memory = memory or thing.attr_value('system', subkey='memory')
         disk = disk or thing.attr_value('system', subkey='disk')
+        cpucount = cpucount or thing.attr_value('system', subkey='cpucount')
 
-        if not memory and not disk:
+        if not memory and not disk and not cpucount:
             raise ResourceException("Server must have attributes for "
-                                    "key='system' and subkey='disk' "
-                                    "and 'memory' set to be inserted into "
-                                    "this manager.")
+                                    "key='system' and subkey='disk',"
+                                    "'memory', and 'cpucount' set to be "
+                                    "inserted into this manager.")
 
-        try:
-            clusto.begin_transaction()
-
-            attr = super(VMManager, self).insert(thing)
-
-            self.add_attr(thing.name,
-                          subkey='available_memory',
-                          value=memory)
-
-            self.add_attr(thing.name,
-                          subkey='available_disk',
-                          value=disk)
-            clusto.commit()
-            
-        except Exception, x:
-            clusto.rollback_transaction()
-            raise x
-        
+        attr = super(VMManager, self).insert(thing)
         
         return attr
     
@@ -79,19 +63,49 @@ class VMManager(ResourceManager):
         # check if thing is in use by a VM
         # error if yes
         # remove if no and clear attributes related to helping allocation
-        pass
+
+        vms = self.owners(thing)
+        if vms:
+            raise ResourceException("%s is still allocated to VMs: %s"
+                                    % (thing.name, str(vms)))
+
+        super(VMManager, self).remove(thing)
+        
         
     def additional_attrs(self, thing, resource, number):
 
         resource, number = self.ensure_type(resource, number)
 
-        thing.add_attr(self._attr_name, number=number,
+        thing.set_attr(self._attr_name, number=number,
                        subkey='allocated_memory',
                        value=thing.attr_value('system', subkey='memory'))
 
+    def available(self, resource, number=True, thing=None):
+        resource, number = self.ensure_type(resource, number)
+
+        return self._has_capacity(resource, thing)
+
+        
     def _has_capacity(self, host, vm):
 
-        return True
+        ## this is a very slow way to do this
+        
+        mem = host.attr_value('system', subkey='memory')
+        disk = host.attr_value('system', subkey='disk')
+        cpu = host.attr_value('system', subkey='cpucount')
+        vms = host.referencers(clusto_types=[BasicVirtualServer])
+
+        for v in vms:
+            mem -= v.attr_value('system', subkey='memory')
+            disk -= v.attr_value('system', subkey='disk')
+            cpu -= v.attr_value('system', subkey='cpucount')
+
+        vmmem = vm.attr_value('system', subkey='memory')
+        vmdisk = vm.attr_value('system', subkey='disk')
+        vmcpu = vm.attr_value('system', subkey='cpucount')
+        
+        return (vmcpu <= cpu) & (vmmem <= mem) & (vmdisk <= disk)
+        
     
     def allocator(self, thing):
         """Allocate a host server for a given virtual server. """
@@ -102,11 +116,17 @@ class VMManager(ResourceManager):
 
         hosts = self.contents(clusto_types=[BasicServer])
 
-        random.shuffle(hosts)
+        hosts = sorted(hosts,
+                       key=lambda x: x.attr_value('system', subkey='disk'))
+        hosts = sorted(hosts,
+                       key=lambda x: x.attr_value('system', subkey='cpucount'))
+        hosts = sorted(hosts,
+                       key=lambda x: x.attr_value('system', subkey='memory'))
+                       
         
         for i in hosts:
             if self._has_capacity(i, thing):
-                return (i, None)
+                return (i, True)
 
                 
         raise ResourceException("No hosts available.")
@@ -117,17 +137,15 @@ class VMManager(ResourceManager):
         pass off normal allocation to the parent but also keep track of
         available host-resources
         """
-
         
+        for res in self.resources(thing):
+            raise ResourceException("%s is already assigned to %s"
+                                    % (thing.name, res.value))
+
         attr = super(VMManager, self).allocate(thing, resource, number)
 
         return attr
     
-
-    def deallocate(self, vm):
-        # free up resources used by vm
-        pass
-        
 
 class EC2VMManager(VMManager):
 
