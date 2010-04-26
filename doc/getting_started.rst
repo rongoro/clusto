@@ -66,3 +66,9 @@ Create a MySQL database
 
  [clusto]
  dsn = mysql://clustouser:clustopass@127.0.0.1/clusto
+
+Creating tables
+~~~~~~~~~~~~~~~
+Using clusto-shell::
+
+ init_clusto()
