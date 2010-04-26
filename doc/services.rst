@@ -32,6 +32,7 @@ Example
 
  p = Pool('pxeboot-servers')
  p.set_attr(key='dhcp', subkey='enabled', value=1)
+ p.set_attr(key='dhcp', subkey='tftp_server', value='192.168.1.1')
  p.set_attr(key='dhcp', subkey='tftp_filename', value='/pxelinux.0')
  p.set_attr(key='dhcp', subkey='domain', value='example.org')
 
