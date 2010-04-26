@@ -5,6 +5,7 @@ except ImportError:
     import json
 
 from webob import Request, Response
+from traceback import format_exc
 from urllib import unquote_plus
 import xmlrpclib
 import cPickle
