@@ -9,122 +9,160 @@ class XenVirtualServer(BasicVirtualServer):
     def __init__(self, name, **kwargs):
         BasicVirtualServer.__init__(self, name, **kwargs)
 
-    @classmethod
-    def _select_hypervisor(self, pool, options):
-        hypervisors = pool.contents(clusto_types=['server'])
-        shuffle(hypervisors)
-        hypervisor = None
-        for hv in hypervisors:
-            ip = hv.get_ips()
-            if not ip:
-                continue
-            ip = ip[0]
+    def _libvirt_create_disk(self, conn, name, capacity, vgname):
+        volume = ET.XML('''
+        <volume>
+            <name></name>
+            <capacity></capacity>
+            <target>
+                <path></path>
+            </target>
+        </volume>''')
+        volume.find('name').text = name
+        volume.find('capacity').text = str(capacity)
+        volume.find('target/path').text = '/dev/%s/%s-%s' % (vgname, self.name, name)
 
-            conn = libvirt.open('xen+tcp://' + ip)
-            if not conn:
-                continue
+        vg = conn.storagePoolLookupByName(vgname)
+        return vg.createXML(ET.dump(volume))
 
-            if conn.getFreeMemory() < options['memory']:
-                continue
-            if conn.storagePoolLookupByName('vol0').info()[3] < options['disk']:
-                continue
-            return (hv, conn)
-        raise DriverException('Cannot find a hypervisor with enough free resources')
+    def _libvirt_delete_disk(self, conn, name, vgname):
+        vol = conn.storageVolLookupByPath('/dev/%s/%s-%s' % (vgname, self.name, name))
+        if vol.delete(0) != 0:
+            raise DriverException('Unable to delete disk %s-%s' % (self.name, name))
 
-    @classmethod
-    def create(self, namemanager, ipmanager, hypervisors, **kwargs):
-        options = {
-            'disk': 50,
-            'memory': 1024,
-        }
-        options.update(kwargs)
+    def _libvirt_create_domain(self, conn, memory, cpucount, vgname):
+        domain = ET.XML('''
+        <domain type="xen">
+            <name></name>
+            <memory></memory>
+            <vcpu></vcpu>
+            <os>
+                <type>hvm</type>
+                <loader>/usr/lib/xen-default/boot/hvmloader</loader>
+                <boot dev="hd" />
+                <boot dev="nework" />
+            </os>
+            <features>
+                <acpi />
+                <pae />
+            </features>
+            <devices>
+                <disk type="block device="disk">
+                    <source />
+                    <target />
+                </disk>
+                <disk type="block device="disk">
+                    <source />
+                    <target />
+                </disk>
+                <interface type="bridge">
+                    <mac />
+                    <source bridge="eth0" />
+                </interface>
+                <console type="pty" tty="/dev/pts/0">
+                    <source path="/dev/pts/0" />
+                    <target port="0" />
+                </console>
+            </devices>
+        </domain>''')
 
-        vm = namemanager.allocate(XenVirtualServer)
-        print 'Created', vm.name
-        vm.set_attr(key='system', subkey='memory', value=options['memory'])
-        vm.set_attr(key='system', subkey='disk', value=options['disk'])
-        ipmanager.allocate(vm)
+        domain.find('name').text = self.name
+        domain.find('memory').text = str(memory)
+        domain.find('vcpu').text = str(cpucount)
 
-        # Generate a MAC based on IP. Serious voodoo
-        intip = IP(vm.get_ips()[0]).int()
-        mac = (0x0152 << 32) + intip
-        macstr = ['%02x' % ((mac >> (i * 8)) & 0xFF) for i in range(5, -1, -1)]
-        mac = ':'.join(macstr)
-        vm.set_port_attr('nic-eth', 1, 'mac', mac)
-        print 'Allocated IP and MAC'
+        disks = list(domain.findall('devices/disk'))
+        disks[0].find('source').set('dev', '/dev/%s/%s-root' % (vgname, self.name))
+        disks[0].find('target').set('dev', 'sda')
+        disks[1].find('source').set('dev', '/dev/%s/%s-swap' % (vgname, self.name))
+        disks[1].find('target').set('dev', 'sdb')
 
-        hv, conn = XenVirtualServer._select_hypervisor(hypervisors, options)
-        hv.insert(vm)
-        print 'Using hypervisor:', hv.name
+        domain.find('devices/interface/mac').set('address', self.get_port_attr('nic-eth', 1, 'mac'))
 
-        options['disk'] = int(options['disk'] * 1073741824.0)
-        options['memory'] = int(options['memory'] * 1048576.0)
+        return conn.defineXML(ET.dump(domain))
 
-        storage = conn.storagePoolLookupByName('vol0')
-        for disktype, disksize in [('disk', options['disk']), ('swap', options['memory'])]:
-            storage.createXML('''
-<volume>
-    <name>%(name)s-%(type)s</name>
-    <capacity>%(size)i</capacity>
-    <target>
-        <path>/dev/vol0/%(name)s-%(type)s</path>
-    </target>
-</volume>''' % {
-                'name': vm.name,
-                'type': disktype,
-                'size': disksize,
-            }, 0)
-        conn.defineXML('''
-<domain type="xen">
-    <name>%(name)s</name>
-    <memory>%(memory)i</memory>
-    <os>
-        <type>hvm</type>
-        <loader>/usr/lib/xen-default/boot/hvmloader</loader>
-        <boot dev="hd" />
-        <boot dev="network" />
-    </os>
-    <features>
-        <pae />
-    </features>
-    <devices>
-        <disk type="block">
-            <source dev="/dev/vol0/%(name)s-disk" />
-            <target dev="hda" />
-        </disk>
-        <disk type="block">
-            <source dev="/dev/vol0/%(name)s-swap" />
-            <target dev="hdb" />
-        </disk>
-        <interface type="bridge">
-            <source bridge="eth0" />
-            <mac address="%(mac)s" />
-        </interface>
-        <console type="pty">
-            <target port="0" />
-        </console>
-    </devices>
-</domain>''' % {
-            'name': vm.name,
-            'memory': options['memory'],
-            'mac': mac,
-        })
-        print 'VM defined'
-        return vm
+    def _libvirt_delete_domain(self, conn):
+        domain = conn.lookupByName(self.name)
+        if domain.undefine() != 0:
+            raise DriverException('Unable to delete (undefine) domain %s' % name)
 
-    def get_domain(self):
-        hv = self.parents(clusto_types=['server'])[0]
-        conn = libvirt.open('xen+tcp://' + hv.get_ips()[0])
-        return conn.lookupByName(self.name)
+    def _libvirt_connect(self):
+        # Connect to the hypervisor
+        host = VMManager.resources(self)
+        if not host:
+            raise DriverException('Cannot start a VM without first allocating a hypervisor with VMManager.allocate')
+        host = host[0].value
 
-    def start(self):
-        self.get_domain().create()
+        ip = host.get_ips()
+        if not ip:
+            raise DriverException('Hypervisor does not have an IP!')
+        ip = ip[0]
 
-    def reboot(self):
-        self.get_domain().reboot()
+        conn = libvirt.open('xen+tcp://%s' % ip)
+        if not conn:
+            raise DriverException('Unable to connect to hypervisor! xen+tcp://%s' % ip)
+        return conn
 
-    def shutdown(self):
-        self.get_domain().shutdown()
+    def vm_create(self, conn=None):
+        if not conn:
+            conn = self._libvirt_connect()
 
-    def destroy(self):
-        self.get_domain().destroy()
+        # Get and validate attributes
+        disk_size = self.attr_values(key='system', subkey='disk')
+        memory_size = self.attr_values(key='system', subkey='memory')
+        swap_size = self.attr_values(key='system', subkey='swap')
+        cpu_count = self.attr_values(key='system', subkey='cpucount')
+
+        if not disk_size:
+            raise DriverException('Cannot create a VM without a key=system,subkey=disk parameter (disk size in GB)')
+        if not memory_size:
+            raise DriverException('Cannot create a VM without a key=system,subkey=memory parameter (memory size in MB)')
+        if not swap_size:
+            swap_size = 512
+        if not cpu_count:
+            cpu_count = 1
+
+        disk_size *= 1073741824
+        swap_size *= 1048576
+
+        # Create disks and domain
+        if not self._libvirt_create_disk(conn, 'root', disk_size, 'vol0'):
+            raise DriverException('Unable to create logical volume %s-root' % self.name)
+        if not self._libvirt_create_disk(conn, 'swap', swap_size, 'vol0'):
+            raise DriverException('Unable to create logical volume %s-swap' % self.name)
+        if not self._libvirt_create_domain(conn, self.name, memory_size, cpu_count, 'vol0'):
+            raise DriverException('Unable to define domain %s' % self.name)
+
+    def vm_start(self, conn=None):
+        if not conn:
+            conn = self._libvirt_connect()
+        domain = conn.lookupByName(self.name)
+        if domain.create() != 0:
+            raise DriverException('Unable to start domain %s' % self.name)
+
+    def vm_stop(self, force=False, conn=None):
+        if not conn:
+            conn = self._libvirt_connect()
+        domain = conn.lookupByName(self.name)
+
+        if force:
+            ret = domain.destroy()
+        else:
+            ret = domain.shutdown()
+
+        if ret != 0:
+            raise DriverException('Unable to stop (destroy) domain %s' % self.name)
+
+    def vm_reboot(self, conn=None):
+        if not conn:
+            conn = self._libvirt_connect()
+        domain = conn.lookupByName(self.name)
+        if domain.reboot() != 0:
+            raise DriverException('Unable to reboot domain %s' % self.name)
+
+    def vm_delete(self, conn=None):
+        if not conn:
+            conn = self._libvirt_connect()
+
+        self._libvirt_delete_domain(conn, self.name)
+        self._libvirt_delete_disk(conn, 'root', vgname)
+        self._libvirt_delete_disk(conn, 'swap', vgname)

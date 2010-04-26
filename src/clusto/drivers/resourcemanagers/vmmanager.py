@@ -55,9 +55,14 @@ class VMManager(ResourceManager):
                                     "'memory', and 'cpucount' set to be "
                                     "inserted into this manager.")
 
-        attr = super(VMManager, self).insert(thing)
-        
-        return attr
+        d = self.ensure_driver(thing,
+                               "Can only insert an Entity or a Driver. "
+                               "Tried to insert %s." % str(type(thing)))
+
+        if d in self:
+            raise PoolException("%s is already in %s." % (d, self))
+
+        self.add_attr("_contains", d, number=True)
     
     def remove(self, thing):
         # check if thing is in use by a VM
@@ -169,15 +174,3 @@ class XenVMManager(VMManager):
     _driver_name = "xenvmmanager"
 
     #_properties = { # som configuration properties that help control how many VMs per CPU or something like that}
-    
-    def allocator(self):
-        """allocate VMs """
-        pass
-        # get list of potential servers: self.contents(clusto_type=[BasicServer])
-
-        # find server with available resources
-
-        # maybe do some bookeeping
-
-        
-        
