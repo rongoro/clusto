@@ -18,16 +18,9 @@ from scapy.all import BOOTP, DHCP, DHCPTypes, DHCPOptions, DHCPRevOptions
 from IPy import IP
 
 from clustohttp import ClustoProxy
-clusto = ClustoProxy('http://clusto.digg.internal:9996')
+clusto = ClustoProxy(conf('dhcp.api_url'))
 
-DHCPOptions.update({
-    66: 'tftp_server',
-    67: 'tftp_filename',
-    208: 'pxelinux-magic',
-    209: 'pxelinux-configfile',
-    210: 'pxelinux-pathprefix',
-    211: 'pxelinux-reboottime',
-})
+DHCPOptions.update(conf('dhcp.extra_options'))
 
 for k,v in DHCPOptions.iteritems():
     if type(v) is str:
@@ -161,7 +154,8 @@ class ClustoDHCPServer(DHCPServer):
         self.send('255.255.255.255', response.build())
 
     def handle_discover(self, request):
-        self.update_ipmi(request)
+        if conf('dhcp.update_ipmi'):
+            self.update_ipmi(request)
 
         attrs = [{
             'key': 'port-nic-eth',
