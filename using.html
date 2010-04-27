@@ -5,13 +5,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Using clusto &mdash; clusto v0.5.23 documentation</title>
+    <title>Using clusto &mdash; clusto v0.5.25 documentation</title>
     <link rel="stylesheet" href="static/default.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.5.23',
+        VERSION:     '0.5.25',
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -19,8 +19,8 @@
     </script>
     <script type="text/javascript" src="static/jquery.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
-    <link rel="top" title="clusto v0.5.23 documentation" href="index.html" />
-    <link rel="next" title="Command line usage" href="cmdline.html" />
+    <link rel="top" title="clusto v0.5.25 documentation" href="index.html" />
+    <link rel="next" title="Services" href="services.html" />
     <link rel="prev" title="Tutorial" href="tutorial.html" /> 
   </head>
   <body>
@@ -31,12 +31,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="cmdline.html" title="Command line usage"
+          <a href="services.html" title="Services"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">clusto v0.5.23 documentation</a> &raquo;</li> 
+        <li><a href="index.html">clusto v0.5.25 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,7 +53,7 @@
 <tbody valign="top">
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">0.5</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">April 23, 2010</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">April 27, 2010</td>
 </tr>
 </tbody>
 </table>
@@ -140,19 +140,6 @@ This is an example of a custom datacenter driver representing a colocation facil
 <p>The get_factory call will get the &#8216;sv3-001&#8217; rack instance from clusto and lookup an attribute of key=&#8217;rackfactory&#8217; to determine which factory class should be used to fill in the rest of the information. The __init__ method of Digg201001RackFactory also creates network, console, and power switch instances with names based on the name of the rack.</p>
 <p>The connect_ports method ensures that this rack is in the datacenter, that the network, console, and power instances are in this rack, and that their ports are all connected as intended. This gives us the basic structure of everything that will be identical across all racks with this layout.</p>
 </div>
-<div class="section" id="snmp-trap-listener">
-<h2>SNMP trap listener<a class="headerlink" href="#snmp-trap-listener" title="Permalink to this headline">¶</a></h2>
-<p>One of the services that ships with clusto called clusto-snmptrapd, will listen for SNMP traps from Cisco switches implementing the CISCO-MAC-NOTIFICATION-MIB which can be enabled with the following configuration on supported IOS releases:</p>
-<div class="highlight-python"><pre>snmp-server enable traps mac-notification change
-snmp-server host &lt;ip&gt; version 2c &lt;community&gt;  mac-notification
-mac address-table notification change
-!
-interface &lt;int&gt;
-  snmp trap mac-notification change added</pre>
-</div>
-<p>When clusto-snmptrapd receives one of these traps, it gathers the IP of the switch, the port number, the VLAN that learned the MAC, and the MAC itself. It then queries the clusto database for the switch IP and checks for an attribute of key=&#8217;snmp&#8217;, subkey=&#8217;discovery&#8217;, value=1... If this attribute is set on the switch or any of it&#8217;s parents, the daemon checks to see if there&#8217;s an object connected to the switch port in clusto. If not, then we assume this is a new server and create a new PenguinServer object with a name generated from a SimpleEntityNameManager called &#8216;servernames&#8217;. The daemon then gets the switch&#8217;s parent rack, gets the rack factory for that rack, then calls add_server(server, switchport) on the rack factory instance.</p>
-<p>It&#8217;s a bit of a complicated process, but the end result is that new servers get added to clusto automatically as soon as they appear on the network without any human intervention aside from creating the rack instance.</p>
-</div>
 </div>
 
 
@@ -169,7 +156,6 @@ interface &lt;int&gt;
 <li><a class="reference external" href="#creating-a-datacenter">Creating a datacenter</a></li>
 <li><a class="reference external" href="#adding-racks-to-the-datacenter">Adding racks to the datacenter</a></li>
 <li><a class="reference external" href="#rack-factory">Rack factory</a></li>
-<li><a class="reference external" href="#snmp-trap-listener">SNMP trap listener</a></li>
 </ul>
 </li>
 </ul>
@@ -178,8 +164,8 @@ interface &lt;int&gt;
             <p class="topless"><a href="tutorial.html"
                                   title="previous chapter">Tutorial</a></p>
             <h4>Next topic</h4>
-            <p class="topless"><a href="cmdline.html"
-                                  title="next chapter">Command line usage</a></p>
+            <p class="topless"><a href="services.html"
+                                  title="next chapter">Services</a></p>
             <h3>This Page</h3>
             <ul class="this-page-menu">
               <li><a href="sources/using.txt"
@@ -209,17 +195,17 @@ interface &lt;int&gt;
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="cmdline.html" title="Command line usage"
+          <a href="services.html" title="Services"
              >next</a> |</li>
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              >previous</a> |</li>
-        <li><a href="index.html">clusto v0.5.23 documentation</a> &raquo;</li> 
+        <li><a href="index.html">clusto v0.5.25 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2010, Digg, Inc..
-      Last updated on Apr 23, 2010.
+      Last updated on Apr 27, 2010.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
     </div>
   </body>

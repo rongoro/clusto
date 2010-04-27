@@ -94,18 +94,3 @@ If you have more than one rack using the same layout of devices and connections 
 The get_factory call will get the 'sv3-001' rack instance from clusto and lookup an attribute of key='rackfactory' to determine which factory class should be used to fill in the rest of the information. The __init__ method of Digg201001RackFactory also creates network, console, and power switch instances with names based on the name of the rack.
 
 The connect_ports method ensures that this rack is in the datacenter, that the network, console, and power instances are in this rack, and that their ports are all connected as intended. This gives us the basic structure of everything that will be identical across all racks with this layout.
-
-SNMP trap listener
-~~~~~~~~~~~~~~~~~~
-One of the services that ships with clusto called clusto-snmptrapd, will listen for SNMP traps from Cisco switches implementing the CISCO-MAC-NOTIFICATION-MIB which can be enabled with the following configuration on supported IOS releases::
-
- snmp-server enable traps mac-notification change
- snmp-server host <ip> version 2c <community>  mac-notification
- mac address-table notification change
- !
- interface <int>
-   snmp trap mac-notification change added
-
-When clusto-snmptrapd receives one of these traps, it gathers the IP of the switch, the port number, the VLAN that learned the MAC, and the MAC itself. It then queries the clusto database for the switch IP and checks for an attribute of key='snmp', subkey='discovery', value=1... If this attribute is set on the switch or any of it's parents, the daemon checks to see if there's an object connected to the switch port in clusto. If not, then we assume this is a new server and create a new PenguinServer object with a name generated from a SimpleEntityNameManager called 'servernames'. The daemon then gets the switch's parent rack, gets the rack factory for that rack, then calls add_server(server, switchport) on the rack factory instance.
-
-It's a bit of a complicated process, but the end result is that new servers get added to clusto automatically as soon as they appear on the network without any human intervention aside from creating the rack instance.

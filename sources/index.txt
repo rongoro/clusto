@@ -13,4 +13,5 @@ Contents:
    getting_started.rst
    tutorial.rst
    using.rst
+   services.rst
    cmdline.rst
