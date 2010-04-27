@@ -63,7 +63,10 @@ class BasicRack(Location):
             raise Exception("%s is already in rack %s"
                             % (device.name, rau['rack'].name))
 
-        
+        if hasattr(device, 'rack_units') and (len(rackU) != device.rack_units):
+            raise TypeError("%s is a %dU device, cannot insert it in %dU"
+                            % (device.name, units, len(rackU)))
+
         for U in rackU:
             dev = self.get_device_in(U)
             if dev:
