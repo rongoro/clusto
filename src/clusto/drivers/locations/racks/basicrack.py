@@ -12,7 +12,7 @@ class BasicRack(Location):
 
     _properties = {'minu':1,
                    'maxu':45}
-    
+
 
     def _ensure_rack_u(self, rackU):
         if not isinstance(rackU, int) and not isinstance(rackU, (list, tuple)):
@@ -49,8 +49,8 @@ class BasicRack(Location):
 
     def insert(self, device, rackU):
         """Insert a given device into the given rackU."""
-    
-        
+
+
         if not isinstance(device, Device):
             raise TypeError("You can only add Devices to a rack.  %s is a"
                             " %s" % (device.name, str(device.__class__)))
@@ -72,14 +72,13 @@ class BasicRack(Location):
         for U in rackU:
             self.add_attr("_contains", device, number=U, subkey='ru')
 
-        
     def get_device_in(self, rackU):
-        
+
         if not isinstance(rackU, int):
             raise TypeError("RackU must be a single integer. Got: %s" % str(rackU))
 
         rackU = self._ensure_rack_u(rackU)[0]
-        
+
         owners = self.contents(number=rackU, subkey='ru')
 
         if len(owners) > 1:
@@ -89,7 +88,7 @@ class BasicRack(Location):
                                           ','.join([x.name for x in owners])))
         if owners:
             return owners[0]
-        
+
         return None
 
     @classmethod
@@ -111,9 +110,9 @@ class BasicRack(Location):
 
         if rack:
             rack = rack.pop()
-            return {'rack':Driver(rack.entity),  
+            return {'rack':Driver(rack.entity),
                     'RU':[x.number for x in rack.content_attrs(value=device,
                                                               subkey='ru')]}
         else:
-            
+
             return None
