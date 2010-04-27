@@ -1,5 +1,9 @@
-from basicserver import BasicVirtualServer
+from xml.etree import ElementTree
 from random import shuffle
+
+from basicserver import BasicVirtualServer
+from clusto.exceptions import DriverException
+
 from IPy import IP
 import libvirt
 
@@ -10,7 +14,7 @@ class XenVirtualServer(BasicVirtualServer):
         BasicVirtualServer.__init__(self, name, **kwargs)
 
     def _libvirt_create_disk(self, conn, name, capacity, vgname):
-        volume = ET.XML('''
+        volume = ElementTree.XML('''
         <volume>
             <name></name>
             <capacity></capacity>
@@ -18,12 +22,12 @@ class XenVirtualServer(BasicVirtualServer):
                 <path></path>
             </target>
         </volume>''')
-        volume.find('name').text = name
+        volume.find('name').text = '%s-%s' % (self.name, name)
         volume.find('capacity').text = str(capacity)
         volume.find('target/path').text = '/dev/%s/%s-%s' % (vgname, self.name, name)
 
         vg = conn.storagePoolLookupByName(vgname)
-        return vg.createXML(ET.dump(volume))
+        return vg.createXML(ElementTree.tostring(volume), 0)
 
     def _libvirt_delete_disk(self, conn, name, vgname):
         vol = conn.storageVolLookupByPath('/dev/%s/%s-%s' % (vgname, self.name, name))
@@ -31,7 +35,7 @@ class XenVirtualServer(BasicVirtualServer):
             raise DriverException('Unable to delete disk %s-%s' % (self.name, name))
 
     def _libvirt_create_domain(self, conn, memory, cpucount, vgname):
-        domain = ET.XML('''
+        domain = ElementTree.XML('''
         <domain type="xen">
             <name></name>
             <memory></memory>
@@ -40,18 +44,17 @@ class XenVirtualServer(BasicVirtualServer):
                 <type>hvm</type>
                 <loader>/usr/lib/xen-default/boot/hvmloader</loader>
                 <boot dev="hd" />
-                <boot dev="nework" />
+                <boot dev="network" />
             </os>
             <features>
-                <acpi />
                 <pae />
             </features>
             <devices>
-                <disk type="block device="disk">
+                <disk type="block">
                     <source />
                     <target />
                 </disk>
-                <disk type="block device="disk">
+                <disk type="block">
                     <source />
                     <target />
                 </disk>
@@ -59,8 +62,7 @@ class XenVirtualServer(BasicVirtualServer):
                     <mac />
                     <source bridge="eth0" />
                 </interface>
-                <console type="pty" tty="/dev/pts/0">
-                    <source path="/dev/pts/0" />
+                <console type="pty">
                     <target port="0" />
                 </console>
             </devices>
@@ -78,7 +80,9 @@ class XenVirtualServer(BasicVirtualServer):
 
         domain.find('devices/interface/mac').set('address', self.get_port_attr('nic-eth', 1, 'mac'))
 
-        return conn.defineXML(ET.dump(domain))
+        xml = ElementTree.tostring(domain)
+        print xml
+        return conn.defineXML(xml)
 
     def _libvirt_delete_domain(self, conn):
         domain = conn.lookupByName(self.name)
@@ -87,6 +91,7 @@ class XenVirtualServer(BasicVirtualServer):
 
     def _libvirt_connect(self):
         # Connect to the hypervisor
+        from clusto.drivers import VMManager
         host = VMManager.resources(self)
         if not host:
             raise DriverException('Cannot start a VM without first allocating a hypervisor with VMManager.allocate')
@@ -103,33 +108,50 @@ class XenVirtualServer(BasicVirtualServer):
         return conn
 
     def vm_create(self, conn=None):
+        print 'Connecting to libvirt'
         if not conn:
             conn = self._libvirt_connect()
 
+        print 'Getting system attributes'
         # Get and validate attributes
         disk_size = self.attr_values(key='system', subkey='disk')
         memory_size = self.attr_values(key='system', subkey='memory')
         swap_size = self.attr_values(key='system', subkey='swap')
         cpu_count = self.attr_values(key='system', subkey='cpucount')
 
+        print 'Checking specs'
         if not disk_size:
             raise DriverException('Cannot create a VM without a key=system,subkey=disk parameter (disk size in GB)')
         if not memory_size:
             raise DriverException('Cannot create a VM without a key=system,subkey=memory parameter (memory size in MB)')
         if not swap_size:
-            swap_size = 512
+            swap_size = [512]
         if not cpu_count:
-            cpu_count = 1
+            cpu_count = [1]
+
+        disk_size = disk_size[0]
+        swap_size = swap_size[0]
+        memory_size = memory_size[0]
+        cpu_count = cpu_count[0]
 
         disk_size *= 1073741824
         swap_size *= 1048576
+        memory_size *= 1024
+
+        print 'disk', disk_size
+        print 'swap', swap_size
+        print 'cpu', cpu_count
+        print 'memory', memory_size
 
         # Create disks and domain
+        print 'create_root'
         if not self._libvirt_create_disk(conn, 'root', disk_size, 'vol0'):
             raise DriverException('Unable to create logical volume %s-root' % self.name)
+        print 'create_swap'
         if not self._libvirt_create_disk(conn, 'swap', swap_size, 'vol0'):
             raise DriverException('Unable to create logical volume %s-swap' % self.name)
-        if not self._libvirt_create_domain(conn, self.name, memory_size, cpu_count, 'vol0'):
+        print 'create_domain'
+        if not self._libvirt_create_domain(conn, memory_size, cpu_count, 'vol0'):
             raise DriverException('Unable to define domain %s' % self.name)
 
     def vm_start(self, conn=None):
@@ -163,6 +185,6 @@ class XenVirtualServer(BasicVirtualServer):
         if not conn:
             conn = self._libvirt_connect()
 
-        self._libvirt_delete_domain(conn, self.name)
-        self._libvirt_delete_disk(conn, 'root', vgname)
-        self._libvirt_delete_disk(conn, 'swap', vgname)
+        self._libvirt_delete_domain(conn)
+        self._libvirt_delete_disk(conn, 'root', 'vol0')
+        self._libvirt_delete_disk(conn, 'swap', 'vol0')
