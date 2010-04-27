@@ -81,7 +81,6 @@ class XenVirtualServer(BasicVirtualServer):
         domain.find('devices/interface/mac').set('address', self.get_port_attr('nic-eth', 1, 'mac'))
 
         xml = ElementTree.tostring(domain)
-        print xml
         return conn.defineXML(xml)
 
     def _libvirt_delete_domain(self, conn):
@@ -108,18 +107,15 @@ class XenVirtualServer(BasicVirtualServer):
         return conn
 
     def vm_create(self, conn=None):
-        print 'Connecting to libvirt'
         if not conn:
             conn = self._libvirt_connect()
 
-        print 'Getting system attributes'
         # Get and validate attributes
         disk_size = self.attr_values(key='system', subkey='disk')
         memory_size = self.attr_values(key='system', subkey='memory')
         swap_size = self.attr_values(key='system', subkey='swap')
         cpu_count = self.attr_values(key='system', subkey='cpucount')
 
-        print 'Checking specs'
         if not disk_size:
             raise DriverException('Cannot create a VM without a key=system,subkey=disk parameter (disk size in GB)')
         if not memory_size:
@@ -138,19 +134,11 @@ class XenVirtualServer(BasicVirtualServer):
         swap_size *= 1048576
         memory_size *= 1024
 
-        print 'disk', disk_size
-        print 'swap', swap_size
-        print 'cpu', cpu_count
-        print 'memory', memory_size
-
         # Create disks and domain
-        print 'create_root'
         if not self._libvirt_create_disk(conn, 'root', disk_size, 'vol0'):
             raise DriverException('Unable to create logical volume %s-root' % self.name)
-        print 'create_swap'
         if not self._libvirt_create_disk(conn, 'swap', swap_size, 'vol0'):
             raise DriverException('Unable to create logical volume %s-swap' % self.name)
-        print 'create_domain'
         if not self._libvirt_create_domain(conn, memory_size, cpu_count, 'vol0'):
             raise DriverException('Unable to define domain %s' % self.name)
 
