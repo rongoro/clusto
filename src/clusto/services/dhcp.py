@@ -20,7 +20,9 @@ from IPy import IP
 from clustohttp import ClustoProxy
 clusto = ClustoProxy(conf('dhcp.api_url'))
 
-DHCPOptions.update(conf('dhcp.extra_options'))
+extra = conf('dhcp.extra_options')
+extra = dict([(int(k), str(v)) for k, v in extra.items()])
+DHCPOptions.update(extra)
 
 for k,v in DHCPOptions.iteritems():
     if type(v) is str:
