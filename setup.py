@@ -8,15 +8,15 @@ from setuptools import setup, find_packages
 srcdir = os.path.join(os.path.dirname(sys.argv[0]), 'src')
 
 setup(name = "clusto",
-      version = "0.5.23",
+      version = "0.5.24",
       packages = find_packages('src'),
       author = "Ron Gorodetzky",
       author_email = "ron@digg.com",
       description = "Clusto, cluster management and inventory system",
       install_requires = ['sqlalchemy>=0.5.0',
-                          'IPy>=0.55',
                           'IPython',
-                          'scapy'],
+                          ],
+      zip_safe=False,
       package_dir = {'':'src'},
       #scripts=glob.glob(os.path.join(srcdir, 'scripts', 'clusto')),
       scripts=[os.path.join(srcdir, 'scripts', 'clusto'),
