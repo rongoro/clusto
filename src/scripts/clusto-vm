@@ -46,12 +46,25 @@ def create(options, args):
 
     vm.vm_create()
 
+def vmlist(options, args):
+    if not options.csv:
+        print 'Hypervisor'.ljust(20), 'VM'.ljust(20), 'Name'.ljust(20)
+    vmman = clusto.get_by_name('xenmanager')
+    for vm in vmman.referencers():
+        host = vmman.resources(vm)[0].value
+        fields = (host.get_ips()[0], vm.get_ips()[0], vm.name)
+        if options.csv:
+            print ','.join(fields)
+        else:
+            print ' '.join([x.ljust(20) for x in fields])
+
 def main():
-    parser = OptionParser(usage='%prog (create|delete|start|stop|reboot) [options]')
+    parser = OptionParser(usage='%prog (create|delete|start|stop|reboot|list) [options]')
     parser.add_option('-d', '--disk', dest='disk', type='int', help='Disk size in GB (default: 10)', default=10)
     parser.add_option('-m', '--memory', dest='memory', type='int', help='Memory size in MB (default: 1024)', default=1024)
     parser.add_option('-s', '--swap', dest='swap', type='int', help='Swap size in MB', default=512)
     parser.add_option('-c', '--cpu', dest='cpu', type='int', help='CPU count', default=1)
+    parser.add_option('-v', '--csv', dest='csv', action='store_true', help='CSV output for "list"', default=False)
     options, args = parser.parse_args()
 
     if not args:
@@ -62,6 +75,9 @@ def main():
 
     if action == 'create':
         return create(options, args)
+
+    if action == 'list':
+        return vmlist(options, args)
 
     if len(args) < 2:
         parser.print_help()

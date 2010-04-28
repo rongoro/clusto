@@ -36,6 +36,7 @@ setup(name = "clusto",
                os.path.join(srcdir, 'scripts', 'clusto-snmptrapd'),
                os.path.join(srcdir, 'scripts', 'clusto-tree'),
                os.path.join(srcdir, 'scripts', 'clusto-update-info'),
+               os.path.join(srcdir, 'scripts', 'clusto-vm'),
                ],
       test_suite = "clusto.test.alltests.gettests",
       dependency_links=['http://www.secdev.org/projects/scapy/']
