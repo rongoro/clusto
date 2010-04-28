@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+from clusto.scripthelpers import init_script
+from clusto.drivers import XenVirtualServer, VMManager
+import clusto
+
+from IPy import IP
+
+from optparse import OptionParser
+from traceback import format_exc
+import sys
+
+def create(options, args):
+    args = args[1:]
+    vm = None
+    if args:
+        try:
+            vm = clusto.get_by_name(args[0])
+        except LookupError:
+            pass
+
+    if not vm:
+        names = clusto.get_by_name('vmnames')
+        vm = names.allocate(XenVirtualServer)
+        print 'Created', vm.name
+
+    vm.set_attr(key='system', subkey='disk', value=options.disk)
+    vm.set_attr(key='system', subkey='memory', value=options.memory)
+    vm.set_attr(key='system', subkey='swap', value=options.swap)
+    vm.set_attr(key='system', subkey='cpucount', value=options.cpu)
+
+    fai = clusto.get_by_name('virtual-fai')
+    fai.insert(vm)
+
+    ipman = clusto.get_by_name('servers-192')
+    ipman.allocate(vm)
+
+    vmman = clusto.get_by_name('xenmanager')
+    vmman.allocate(vm)
+
+    # Generate a MAC based on IP. Serious voodoo
+    intip = IP(vm.get_ips()[0]).int()
+    mac = (0x0252 << 32) + intip
+    macstr = ['%02x' % ((mac >> (i * 8)) & 0xFF) for i in range(5, -1, -1)]
+    mac = ':'.join(macstr)
+    vm.set_port_attr('nic-eth', 1, 'mac', mac)
+
+    vm.vm_create()
+
+def main():
+    parser = OptionParser(usage='%prog (create|delete|start|stop|reboot) [options]')
+    parser.add_option('-d', '--disk', dest='disk', type='int', help='Disk size in GB (default: 10)', default=10)
+    parser.add_option('-m', '--memory', dest='memory', type='int', help='Memory size in MB (default: 1024)', default=1024)
+    parser.add_option('-s', '--swap', dest='swap', type='int', help='Swap size in MB', default=512)
+    parser.add_option('-c', '--cpu', dest='cpu', type='int', help='CPU count', default=1)
+    options, args = parser.parse_args()
+
+    if not args:
+        parser.print_help()
+        return -1
+
+    action = args[0]
+
+    if action == 'create':
+        return create(options, args)
+
+    if len(args) < 2:
+        parser.print_help()
+        return -1
+
+    try:
+        server = clusto.get_by_name(args[1])
+    except LookupError:
+        sys.stderr.write('%s does not exist.' % sys.argv[1])
+        return -1
+
+    if hasattr(server, 'vm_' + action):
+        method = getattr(server, 'vm_' + action)
+        try:
+            method()
+            return 0
+        except:
+            sys.stderr.write(str(sys.exc_info()[1]) + '\n')
+            return -1
+    else:
+        sys.stderr.write('Unknown action: %s\n' % action)
+        return -1
+
+if __name__ == '__main__':
+    init_script()
+    main()

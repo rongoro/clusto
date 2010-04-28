@@ -1,4 +1,5 @@
 from xml.etree import ElementTree
+from subprocess import Popen
 from random import shuffle
 
 from basicserver import BasicVirtualServer
@@ -74,9 +75,9 @@ class XenVirtualServer(BasicVirtualServer):
 
         disks = list(domain.findall('devices/disk'))
         disks[0].find('source').set('dev', '/dev/%s/%s-root' % (vgname, self.name))
-        disks[0].find('target').set('dev', 'sda')
+        disks[0].find('target').set('dev', 'hda')
         disks[1].find('source').set('dev', '/dev/%s/%s-swap' % (vgname, self.name))
-        disks[1].find('target').set('dev', 'sdb')
+        disks[1].find('target').set('dev', 'hdb')
 
         domain.find('devices/interface/mac').set('address', self.get_port_attr('nic-eth', 1, 'mac'))
 
@@ -89,12 +90,7 @@ class XenVirtualServer(BasicVirtualServer):
             raise DriverException('Unable to delete (undefine) domain %s' % name)
 
     def _libvirt_connect(self):
-        # Connect to the hypervisor
-        from clusto.drivers import VMManager
-        host = VMManager.resources(self)
-        if not host:
-            raise DriverException('Cannot start a VM without first allocating a hypervisor with VMManager.allocate')
-        host = host[0].value
+        host = self.get_hypervisor()
 
         ip = host.get_ips()
         if not ip:
@@ -105,6 +101,13 @@ class XenVirtualServer(BasicVirtualServer):
         if not conn:
             raise DriverException('Unable to connect to hypervisor! xen+tcp://%s' % ip)
         return conn
+
+    def get_hypervisor(self):
+        from clusto.drivers import VMManager
+        host = VMManager.resources(self)
+        if not host:
+            raise DriverException('Cannot start a VM without first allocating a hypervisor with VMManager.allocate')
+        return host[0].value
 
     def vm_create(self, conn=None):
         if not conn:
@@ -134,12 +137,19 @@ class XenVirtualServer(BasicVirtualServer):
         swap_size *= 1048576
         memory_size *= 1024
 
+        host = self.get_hypervisor()
+        volume_group = host.attr_values(key='xen', subkey='volume-group', merge_container_attrs=True)
+        if not volume_group:
+            raise DriverException('No key=xen,subkey=volume-group defined for %s' % host.name)
+        else:
+            volume_group = volume_group[0]
+
         # Create disks and domain
-        if not self._libvirt_create_disk(conn, 'root', disk_size, 'vol0'):
+        if not self._libvirt_create_disk(conn, 'root', disk_size, volume_group):
             raise DriverException('Unable to create logical volume %s-root' % self.name)
-        if not self._libvirt_create_disk(conn, 'swap', swap_size, 'vol0'):
+        if not self._libvirt_create_disk(conn, 'swap', swap_size, volume_group):
             raise DriverException('Unable to create logical volume %s-swap' % self.name)
-        if not self._libvirt_create_domain(conn, memory_size, cpu_count, 'vol0'):
+        if not self._libvirt_create_domain(conn, memory_size, cpu_count, volume_group):
             raise DriverException('Unable to define domain %s' % self.name)
 
     def vm_start(self, conn=None):
@@ -166,13 +176,31 @@ class XenVirtualServer(BasicVirtualServer):
         if not conn:
             conn = self._libvirt_connect()
         domain = conn.lookupByName(self.name)
-        if domain.reboot() != 0:
+        if domain.reboot(0) != 0:
             raise DriverException('Unable to reboot domain %s' % self.name)
 
     def vm_delete(self, conn=None):
         if not conn:
             conn = self._libvirt_connect()
 
+        host = self.get_hypervisor()
+        volume_group = host.attr_values(key='xen', subkey='volume-group', merge_container_attrs=True)
+        if not volume_group:
+            raise DriverException('No key=xen,subkey=volume-group defined for %s' % host.name)
+        else:
+            volume_group = volume_group[0]
+
         self._libvirt_delete_domain(conn)
-        self._libvirt_delete_disk(conn, 'root', 'vol0')
-        self._libvirt_delete_disk(conn, 'swap', 'vol0')
+        self._libvirt_delete_disk(conn, 'root', volume_group)
+        self._libvirt_delete_disk(conn, 'swap', volume_group)
+
+    def vm_console(self, ssh_user='root'):
+        host = self.get_hypervisor()
+
+        ip = host.get_ips()
+        if not ip:
+            raise DriverException('Hypervisor has no IP: %s' % host.name)
+        ip = ip[0]
+
+        proc = Popen('ssh -t -l %s %s "xm console %s"' % (ssh_user, ip, self.name), shell=True)
+        proc.communicate()
