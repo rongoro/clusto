@@ -28,8 +28,10 @@ def create(options, args):
     vm.set_attr(key='system', subkey='swap', value=options.swap)
     vm.set_attr(key='system', subkey='cpucount', value=options.cpu)
 
-    fai = clusto.get_by_name('virtual-fai')
-    fai.insert(vm)
+    p = clusto.get_by_name('fai')
+    p.insert(vm)
+    p = clusto.get_by_name('virtual')
+    p.insert(vm)
 
     ipman = clusto.get_by_name('servers-192')
     ipman.allocate(vm)
@@ -58,8 +60,23 @@ def vmlist(options, args):
         else:
             print ' '.join([x.ljust(20) for x in fields])
 
+def delete(server):
+    sys.stdout.write('Are you absolutely sure you want to delete %s (yes/no)? ' % server.name)
+    sys.stdout.flush()
+    try:
+        line = sys.stdin.readline().strip('\r\n ')
+        if line == 'yes':
+            server.vm_delete()
+            clusto.delete_entity(server.entity)
+            return 0
+        else:
+            print 'Aborting'
+    except KeyboardInterrupt:
+        print 'Aborting'
+    return -1
+
 def main():
-    parser = OptionParser(usage='%prog (create|delete|start|stop|reboot|list) [options]')
+    parser = OptionParser(usage='%prog <action> [options]\nActions: create, delete, start, stop, reboot, list, console')
     parser.add_option('-d', '--disk', dest='disk', type='int', help='Disk size in GB (default: 10)', default=10)
     parser.add_option('-m', '--memory', dest='memory', type='int', help='Memory size in MB (default: 1024)', default=1024)
     parser.add_option('-s', '--swap', dest='swap', type='int', help='Swap size in MB', default=512)
@@ -88,6 +105,9 @@ def main():
     except LookupError:
         sys.stderr.write('%s does not exist.' % sys.argv[1])
         return -1
+
+    if action == 'delete':
+        return delete(server)
 
     if hasattr(server, 'vm_' + action):
         method = getattr(server, 'vm_' + action)
