@@ -1,3 +1,10 @@
+clusto (0.5.26-1) unstable; urgency=low
+
+  * Add support for 2U servers and rack layouts
+  * Implement clusto-vm script, documentation
+
+ -- Jeremy Grosser <synack@digg.com>  Thu, 29 Apr 2010 15:01:55 -0700
+
 clusto (0.5.25-1) unstable; urgency=low
 
   * Fix clusto-dhcpd config parsing

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 srcdir = os.path.join(os.path.dirname(sys.argv[0]), 'src')
 
 setup(name = "clusto",
-      version = "0.5.25",
+      version = "0.5.26",
       packages = find_packages('src'),
       author = "Ron Gorodetzky",
       author_email = "ron@digg.com",
