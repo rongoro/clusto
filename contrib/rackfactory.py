@@ -8,7 +8,11 @@ def get_factory(name, layout=None):
     if not layout:
         rack = clusto.get_by_name(name)
         layout = rack.attr_value(key='racklayout')
-    return LAYOUTS[str(layout)](name, rack.parents(clusto_types=['datacenter']))
+
+    factory = LAYOUTS.get(str(layout), None)
+    if factory:
+        factory = factory(name, rack.parents(clusto_types=['datacenter']))
+    return factory
 
 class RackFactory(object):
     def bind_dns_ip_to_osport(self, obj, osport, porttype=None, portnum=None, domain='digg.internal'):

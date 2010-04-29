@@ -54,6 +54,9 @@ def update_clusto(trap):
 
     try:
         factory = rackfactory.get_factory(rack.name)
+        if not factory:
+            log.warning('Unable to locate rack factory for %s' % rack.name)
+            return
     except:
         log.error(format_exc())
         return
