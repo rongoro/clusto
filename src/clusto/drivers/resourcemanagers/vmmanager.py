@@ -37,7 +37,7 @@ class VMManager(ResourceManager):
         return (resource, number)
     
         
-    def insert(self, thing, memory=None, disk=None, cpucount=None):
+    def insert(self, thing):
         # insert into self and also add attributes that will help with  allocation
         if thing.type != BasicServer._clusto_type:
             raise ResourceException("Only servers can be inserted into "
@@ -45,9 +45,9 @@ class VMManager(ResourceManager):
                                     % (thing.name, thing.type))
 
         
-        memory = memory or thing.attr_value('system', subkey='memory')
-        disk = disk or thing.attr_value('system', subkey='disk')
-        cpucount = cpucount or thing.attr_value('system', subkey='cpucount')
+        memory = thing.attr_value('system', subkey='memory')
+        disk = thing.attr_value('system', subkey='disk')
+        cpucount = thing.attr_value('system', subkey='cpucount')
 
         if not memory and not disk and not cpucount:
             raise ResourceException("Server must have attributes for "
