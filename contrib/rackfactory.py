@@ -80,6 +80,9 @@ class Digg201001RackFactory(RackFactory):
         if server.port_free('console-serial', 1):
             server.connect_ports('console-serial', 1, self.console, switchport)
 
+    def get_driver(self, switchport):
+        return PenguinServer
+
 class Digg5555RackFactory(RackFactory):
     LAYOUT_NAME = '5555'
 
@@ -155,6 +158,9 @@ class Digg5555RackFactory(RackFactory):
         if server.port_free('console-serial', 1):
             server.connect_ports('console-serial', 1, self.console, switchport)
 
+    def get_driver(self, switchport):
+        return PenguinServer
+
 class Digg4444RackFactory(Digg5555RackFactory):
     LAYOUT_NAME = '4444'
 
@@ -225,6 +231,12 @@ class Digg53532URackFactory(RackFactory):
         if server.port_free('console-serial', 1):
             server.connect_ports('console-serial', 1, self.console, switchport)
 
+    def get_driver(self, switchport):
+        if isinstance(self.SWITCHPORT_TO_RU, list) and len(self.SWITCHPORT_TO_RU) == 2:
+            return PenguinServer2U
+        else:
+            return PenguinServer
+
 
 class Digg54542URackFactory(RackFactory):
     LAYOUT_NAME = '54542U'
@@ -292,6 +304,11 @@ class Digg54542URackFactory(RackFactory):
         if server.port_free('console-serial', 1):
             server.connect_ports('console-serial', 1, self.console, switchport)
 
+    def get_driver(self, switchport):
+        if isinstance(self.SWITCHPORT_TO_RU, list) and len(self.SWITCHPORT_TO_RU) == 2:
+            return PenguinServer2U
+        else:
+            return PenguinServer
 
 LAYOUTS = {}
 
