@@ -43,13 +43,6 @@ def update_clusto(trap):
         log.debug('key=snmp, subkey=discovery for %s not set to 1, ignoring trap' % switch.name)
         return
 
-    server = switch.get_connected('nic-eth', trap['port'])
-    if not server:
-        servernames = clusto.get_by_name('servernames')
-        clusto.SESSION.clusto_description = 'SNMP allocate new server'
-        server = servernames.allocate(PenguinServer)
-        log.info('Created new server on %s port %s: %s' % (trap['switch'], trap['port'], server.name))
-
     rack = switch.parents(clusto_types=['rack'])[0]
 
     try:
@@ -60,6 +53,14 @@ def update_clusto(trap):
     except:
         log.error(format_exc())
         return
+
+    server = switch.get_connected('nic-eth', trap['port'])
+    if not server:
+        servernames = clusto.get_by_name('servernames')
+        clusto.SESSION.clusto_description = 'SNMP allocate new server'
+        driver = factory.get_driver(trap['port'])
+        server = servernames.allocate(driver)
+        log.info('Created new %s on %s port %s: %s' % (driver.__name__, trap['switch'], trap['port'], server.name))
 
     try:
         clusto.begin_transaction()
