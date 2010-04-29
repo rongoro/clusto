@@ -159,6 +159,140 @@ class Digg4444RackFactory(Digg5555RackFactory):
     LAYOUT_NAME = '4444'
 
 
+class Digg53532URackFactory(RackFactory):
+    LAYOUT_NAME = '53532U'
+
+    SWITCHPORT_TO_RU = {
+        1: 1, 2: 2, 3: 3, 4: 4, 5: 5,
+        6: 7, 7: 8, 8: 9, 9: 10, 10: 11,
+        11: 13, 12: 14, 13: 15, 14: 16, 15: 17,
+        16: 19, 17: 20, 18: 21, 19: [35,36], 20: [33, 34]
+    }
+    SWITCHPORT_TO_PWR = {
+        1: 'bb1', 2: 'bb2', 3: 'bb3', 4: 'bb4', 5: 'bb5',
+        6: 'ba1', 7: 'ba2', 8: 'ba3', 9: 'ba4', 10: 'ba5',
+        11: 'ab1', 12: 'ab2', 13: 'ab3', 14: 'ab4', 15: 'ab5',
+        16: 'aa1', 17: 'aa2', 18: 'aa3', 19: ['aa7', 'ba7'],
+        20: ['aa6', 'ba6']
+    }
+
+    def __init__(self, name, datacenter):
+        self.datacenter = datacenter
+        self.rack = clusto.get_or_create(name, APCRack)
+        self.switch = clusto.get_or_create(name + '-sw1', Cisco4948)
+        self.console = clusto.get_or_create(name + '-ts1', OpenGearCM4148)
+        self.power = clusto.get_or_create(name + '-pwr1', PowerTowerXM)
+
+    def connect_ports(self):
+        self.rack.set_attr(key='racklayout', value=self.LAYOUT_NAME)
+
+        if not self.rack in self.datacenter:
+            self.datacenter.insert(self.rack)
+
+        if not self.power in self.rack:
+            self.rack.insert(self.power, 41)
+        if self.power.port_free('nic-eth', 1):
+            self.power.connect_ports('nic-eth', 1, self.switch, 44)
+        if self.power.port_free('console-serial', 1):
+            self.power.connect_ports('console-serial', 1, self.console, 44)
+
+        if not self.switch in self.rack:
+            self.rack.insert(self.switch, 36)
+        if self.switch.port_free('pwr-nema-5', 1):
+            self.switch.connect_ports('pwr-nema-5', 1, self.power, 'aa8')
+        if self.switch.port_free('console-serial', 1):
+            self.switch.connect_ports('console-serial', 1, self.console, 48)
+
+        if not self.console in self.rack:
+            self.rack.insert(self.console, 34)
+        if self.console.port_free('pwr-nema-5', 1):
+            self.console.connect_ports('pwr-nema-5', 1, self.power, 'ab8')
+        if self.console.port_free('nic-eth', 1):
+            self.console.connect_ports('nic-eth', 1, self.switch, 43)
+
+        self.bind_dns_ip_to_osport(self.switch, 'Vlan442')
+        self.bind_dns_ip_to_osport(self.console, 'nic0', porttype='nic-eth', portnum=1)
+        self.bind_dns_ip_to_osport(self.power, 'nic0', porttype='nic-eth', portnum=1)
+
+    def add_server(self, server, switchport):
+        if not server in self.rack:
+            self.rack.insert(server, self.SWITCHPORT_TO_RU[switchport])
+        if server.port_free('nic-eth', 1):
+            server.connect_ports('nic-eth', 1, self.switch, switchport)
+        for i in range(len(SWITCHPORT_TO_PWR[switchport])):
+            if server.port_free('pwr-nema-5', i):
+                server.connect_ports('pwr-nema-5', i, self.power, self.SWITCHPORT_TO_PWR[switchport])
+        if server.port_free('console-serial', 1):
+            server.connect_ports('console-serial', 1, self.console, switchport)
+
+
+class Digg54542URackFactory(RackFactory):
+    LAYOUT_NAME = '54542U'
+
+    SWITCHPORT_TO_RU = {
+        1: 1, 2: 2, 3: 3, 4: 4, 5: 5,
+        6: 7, 7: 8, 8: 9, 9: 10, 10: 11,
+        11: 13, 12: 14, 13: 15, 14: 16, 15: 17,
+        16: 19, 17: 20, 18: 21, 19: 22, 20: [33, 34]
+    }
+    SWITCHPORT_TO_PWR = {
+        1: 'bb1', 2: 'bb2', 3: 'bb3', 4: 'bb4', 5: 'bb5',
+        6: 'ba1', 7: 'ba2', 8: 'ba3', 9: 'ba4', 10: 'ba5',
+        11: 'ab1', 12: 'ab2', 13: 'ab3', 14: 'ab4', 15: 'ab5',
+        16: 'aa1', 17: 'aa2', 18: 'aa3', 19: 'aa4',
+        20: ['aa6', 'ba6']
+    }
+
+    def __init__(self, name, datacenter):
+        self.datacenter = datacenter
+        self.rack = clusto.get_or_create(name, APCRack)
+        self.switch = clusto.get_or_create(name + '-sw1', Cisco4948)
+        self.console = clusto.get_or_create(name + '-ts1', OpenGearCM4148)
+        self.power = clusto.get_or_create(name + '-pwr1', PowerTowerXM)
+
+    def connect_ports(self):
+        self.rack.set_attr(key='racklayout', value=self.LAYOUT_NAME)
+
+        if not self.rack in self.datacenter:
+            self.datacenter.insert(self.rack)
+
+        if not self.power in self.rack:
+            self.rack.insert(self.power, 41)
+        if self.power.port_free('nic-eth', 1):
+            self.power.connect_ports('nic-eth', 1, self.switch, 44)
+        if self.power.port_free('console-serial', 1):
+            self.power.connect_ports('console-serial', 1, self.console, 44)
+
+        if not self.switch in self.rack:
+            self.rack.insert(self.switch, 36)
+        if self.switch.port_free('pwr-nema-5', 1):
+            self.switch.connect_ports('pwr-nema-5', 1, self.power, 'aa8')
+        if self.switch.port_free('console-serial', 1):
+            self.switch.connect_ports('console-serial', 1, self.console, 48)
+
+        if not self.console in self.rack:
+            self.rack.insert(self.console, 34)
+        if self.console.port_free('pwr-nema-5', 1):
+            self.console.connect_ports('pwr-nema-5', 1, self.power, 'ab8')
+        if self.console.port_free('nic-eth', 1):
+            self.console.connect_ports('nic-eth', 1, self.switch, 43)
+
+        self.bind_dns_ip_to_osport(self.switch, 'Vlan442')
+        self.bind_dns_ip_to_osport(self.console, 'nic0', porttype='nic-eth', portnum=1)
+        self.bind_dns_ip_to_osport(self.power, 'nic0', porttype='nic-eth', portnum=1)
+
+    def add_server(self, server, switchport):
+        if not server in self.rack:
+            self.rack.insert(server, self.SWITCHPORT_TO_RU[switchport])
+        if server.port_free('nic-eth', 1):
+            server.connect_ports('nic-eth', 1, self.switch, switchport)
+        for i in range(len(SWITCHPORT_TO_PWR[switchport])):
+            if server.port_free('pwr-nema-5', i):
+                server.connect_ports('pwr-nema-5', i, self.power, self.SWITCHPORT_TO_PWR[switchport])
+        if server.port_free('console-serial', 1):
+            server.connect_ports('console-serial', 1, self.console, switchport)
+
+
 LAYOUTS = {}
 
 for factory in [Digg4444RackFactory, Digg5555RackFactory, Digg201001RackFactory]:
