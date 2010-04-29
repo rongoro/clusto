@@ -94,3 +94,48 @@ If you have more than one rack using the same layout of devices and connections 
 The get_factory call will get the 'sv3-001' rack instance from clusto and lookup an attribute of key='rackfactory' to determine which factory class should be used to fill in the rest of the information. The __init__ method of Digg201001RackFactory also creates network, console, and power switch instances with names based on the name of the rack.
 
 The connect_ports method ensures that this rack is in the datacenter, that the network, console, and power instances are in this rack, and that their ports are all connected as intended. This gives us the basic structure of everything that will be identical across all racks with this layout.
+
+Virtual machines
+~~~~~~~~~~~~~~~~
+Clusto supports managing virtual machines and their host environments through subclasses of VMManager. At the time of writing the only working implementation is XenVMManager.
+
+Assuming you already have some server objects and you've installed Xen with libvirtd on those servers, with an LVM volume group named "vg0", the clusto side of things goes a bit like this::
+
+ from clusto.drivers import XenVMManager, XenVirtualServer
+
+ hosts = [
+ 	clusto.get_by_name('xenhost1')
+ 	clusto.get_by_name('xenhost2')
+ 	clusto.get_by_name('xenhost3')
+ ]
+
+ # Every hypervisor MUST have the following four attributes set
+ for x in hosts:
+  	x.set_attr(key='xen', subkey='volume-group', value='vg0')   # LVM VG name
+ 	x.set_attr(key='system', subkey='memory', value=16384)      # RAM in MB
+ 	x.set_attr(key='system', subkey='disk', value=2000)         # Disk in GB
+ 	x.set_attr(key='system', subkey='cpucount', value=8)        # Logical CPUs
+
+ manager = XenVMManager('xenmanager')
+ [manager.insert(x) for x in hosts]
+
+Now that you have your host machines configured, allocate a new VM::
+
+ vm = XenVirtualServer('xenvm1')
+ vm.bind_ip_to_osport('192.168.1.51', 'eth0')
+ vm.set_port_attr('nic-eth', 1, 'mac', '02:52:0a:00:00:01')
+ vm.set_attr(key='system', subkey='memory', value=1024)
+ vm.set_attr(key='system', subkey='disk', value=20)
+ vm.set_attr(key='system', subkey='cpucount', value=1)
+ manager.allocate(vm)
+
+ vm.vm_create()		# Create the LVM logical volumes, define the domain
+ vm.vm_start()		# Start the defined domain
+ vm.vm_console()	# SSH to the host and open the VM's console
+ vm.vm_stop()		# Shutdown the VM
+
+If you already have IPManager and SimpleEntityNameManager instances setup, the command line tools should work as well::
+
+ $ clusto vm create --disk 20 --memory 1024
+ Created v1000
+ $ clusto vm start v1000
