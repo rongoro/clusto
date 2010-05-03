@@ -337,6 +337,29 @@ def rollback_transaction():
     else:
         _dec_transaction_counter()
 
+def change_driver(thingname, newdriver):
+    """Change the Driver of a given Entity
+
+    params:
+      thingname: the name of the entity
+      newdriver: the new driver to set for the entity
+    """
+    if not issubclass(newdriver, Driver):
+        raise DriverException("%s is not a driver" % str(newdriver))
+    
+    try:
+        begin_transaction()
+        
+        thing = get_by_name(thingname)
+
+        thing.entity._set_driver_and_type(newdriver._driver_name, newdriver._clusto_type)
+        
+        commit()
+    except Exception, x:
+        rollback_transaction()
+        raise x
+    
+
 def commit():
     """Commit changes to the datastore"""
 

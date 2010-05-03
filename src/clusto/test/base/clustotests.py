@@ -56,7 +56,27 @@ class TestClusto(testbase.ClustoTestBase):
 
         self.assertEqual(q.filter_by(name='f1').count(), 1)
         
-    
+
+    def testChangeDriver(self):
+
+        d = Driver('d1')
+        d.add_attr('foo', 1)
+
+        self.assertEqual(d.driver, Driver._driver_name)
+
+        self.assertRaises(Exception, setattr, d.entity, driver, 'foo')
+
+        clusto.change_driver(d.name, BasicServer)
+
+        self.assertRaises(DriverException, clusto.change_driver, d.name, str)
+        
+        d = clusto.get_by_name('d1')
+        
+        self.assertEqual(d.driver, BasicServer._driver_name)        
+        self.assertTrue(isinstance(d, BasicServer))
+
+        self.assertEqual(d.attr_value('foo'), 1)
+
 
     def testTransactionRollback(self):
 

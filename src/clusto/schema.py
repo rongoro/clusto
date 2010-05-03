@@ -506,8 +506,30 @@ class Entity(ProtectedObj):
         return SESSION.query(cls).filter(or_(cls.deleted_at_version==None,
                                              cls.deleted_at_version>SESSION.clusto_version)).filter(cls.version<=SESSION.clusto_version)
 
-    
+
+    @ProtectedObj.writer
+    def _set_driver_and_type(self, driver, clusto_type):
+        """sets the driver and type for the entity
+
+        this shouldn't be too dangerous, but be careful
         
+        params:
+          driver: the driver name
+          clusto_type: the type name
+        """
+
+        try:
+            clusto.begin_transaction()
+        
+            self.type = clusto_type
+            self.driver = driver
+
+            clusto.commit()
+        except Exception, x:
+            clusto.rollback_transaction()
+            raise x
+
+
 mapper(ClustoVersioning, CLUSTO_VERSIONING)
 
 mapper(Counter, COUNTER_TABLE,
