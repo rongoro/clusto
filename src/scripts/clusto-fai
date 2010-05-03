@@ -14,6 +14,7 @@ def main():
     except LookupError:
         sys.stderr.write('%s does not exist.' % sys.argv[1])
         return -1
+    server = server[0]
 
     ip = server.get_ips()
     if not ip:

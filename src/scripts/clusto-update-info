@@ -191,6 +191,7 @@ def main():
     except LookupError:
         sys.stderr.write('Object does not exist: %s\n' % args[0])
         return -1
+    obj = obj[0]
 
     if obj.type != 'server':
         obj = obj.contents()

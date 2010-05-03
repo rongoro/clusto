@@ -15,6 +15,7 @@ def main():
     except LookupError:
         sys.stderr.write('%s does not exist.' % sys.argv[1])
         return -1
+    server = server[0]
 
     print 'Pools:'.ljust(16, ' '), ' '.join([x.name for x in server.parents(clusto_types=['pool'])]), '\n'
 

@@ -68,6 +68,7 @@ def main():
     except LookupError:
         sys.stderr.write('%s does not exist\n' % object)
         return -1
+    object = object[0]
 
 
     actions = {

@@ -10,7 +10,7 @@ def main():
         sys.stderr.write('Usage: %s <server name>\n' % sys.argv[0])
         return -1
 
-    server = clusto.get(sys.argv[1])
+    server = clusto.get(sys.argv[1])[0]
     if not hasattr(server, 'console'):
         sys.stderr.write('%s doesn\'t have a console method\n' % server.name)
         return -1
