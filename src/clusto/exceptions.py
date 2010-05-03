@@ -1,4 +1,3 @@
-
 class ClustoException(Exception):
     """base clusto exception"""
     pass
@@ -33,4 +32,3 @@ class PoolException(ClustoException):
 
 class TransactionException(ClustoException):
     pass
-

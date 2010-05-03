@@ -10,14 +10,14 @@ from sqlalchemy.exceptions import InvalidRequestError
 class TestClustoPlain(testbase.ClustoTestBase):
 
     def testInitClustoIdempotent(self):
-        
+
         clusto.init_clusto()
         clusto.init_clusto()
         clusto.init_clusto()
         clusto.init_clusto()
 
         self.assertEqual(SESSION.query(ClustoVersioning).count(), 2)
-                                       
+
 
 
 class TestClusto(testbase.ClustoTestBase):
@@ -28,14 +28,14 @@ class TestClusto(testbase.ClustoTestBase):
         Entity('e3')
 
         clusto.flush()
-        
+
 
     def testClustoMeta(self):
 
         cm = clusto.get_by_name('clustometa')
 
         self.assertEqual(cm.schemaversion, VERSION)
-        
+
     def testGetByName(self):
 
         e1 = Entity.query().filter_by(name='e1').one()
@@ -55,7 +55,7 @@ class TestClusto(testbase.ClustoTestBase):
         self.assertEqual(q.filter_by(name='e1').count(), 0)
 
         self.assertEqual(q.filter_by(name='f1').count(), 1)
-        
+
 
     def testChangeDriver(self):
 
@@ -69,10 +69,10 @@ class TestClusto(testbase.ClustoTestBase):
         clusto.change_driver(d.name, BasicServer)
 
         self.assertRaises(DriverException, clusto.change_driver, d.name, str)
-        
+
         d = clusto.get_by_name('d1')
-        
-        self.assertEqual(d.driver, BasicServer._driver_name)        
+
+        self.assertEqual(d.driver, BasicServer._driver_name)
         self.assertTrue(isinstance(d, BasicServer))
 
         self.assertEqual(d.attr_value('foo'), 1)
@@ -81,7 +81,7 @@ class TestClusto(testbase.ClustoTestBase):
     def testTransactionRollback(self):
 
         clusto.begin_transaction()
-        
+
         d1 = Entity('d1')
 
         clusto.get_by_name('d1')
@@ -98,14 +98,14 @@ class TestClusto(testbase.ClustoTestBase):
             clusto.begin_transaction()
 
             c1 = Entity('c1')
-            
+
             raise Exception()
         except Exception:
-            
+
             clusto.rollback_transaction()
 
         c2 = Entity('c2')
-        
+
         self.assertRaises(LookupError, clusto.get_by_name, 'c1')
         clusto.get_by_name('c2')
 
@@ -134,7 +134,7 @@ class TestClusto(testbase.ClustoTestBase):
                 d2.add_attr('foo', 'bar')
 
                 clusto.commit()
-            
+
             except:
                 clusto.rollback_transaction()
 
@@ -147,13 +147,13 @@ class TestClusto(testbase.ClustoTestBase):
 
         self.assertEqual(d1.attrs(), [])
         self.assertRaises(LookupError, clusto.get_by_name, 'd2')
-            
+
 
     def testTransactionCommit(self):
 
         try:
             clusto.begin_transaction()
-            
+
             c1 = Entity('c1')
             clusto.commit()
         except Exception:
@@ -169,10 +169,10 @@ class TestClusto(testbase.ClustoTestBase):
         Location('l1')
         BasicDatacenter('dc1')
 
-        
+
         namelist = ['e1', 'e2', 'dv1']
 
-        self.assertEqual(sorted([n.name 
+        self.assertEqual(sorted([n.name
                                  for n in clusto.get_entities(names=namelist)]),
                          sorted(namelist))
 
@@ -208,7 +208,7 @@ class TestClusto(testbase.ClustoTestBase):
         p3.insert(s1)
 
         p4.insert(p3)
-        
+
 
         self.assertEqual(sorted([s2,s3]),
                          sorted(clusto.get_from_pools(pools=[p2],
@@ -296,13 +296,13 @@ class TestClusto(testbase.ClustoTestBase):
         self.assertEqual([], clusto.get_entities(names=['e1']))
 
         self.assertEqual([], Driver.do_attr_query(key='deltest*', glob=True))
-                         
+
 
 
     def testDriverSearches(self):
 
         d = Driver('d1')
-        
+
         self.assertRaises(NameError, clusto.get_driver_name, 'FAKEDRIVER')
 
         self.assertEqual(clusto.get_driver_name(Driver),
@@ -319,7 +319,7 @@ class TestClusto(testbase.ClustoTestBase):
     def testTypeSearches(self):
 
         d = Driver('d1')
-        
+
         self.assertEqual(clusto.get_type_name('generic'),
                          'generic')
 
@@ -327,20 +327,20 @@ class TestClusto(testbase.ClustoTestBase):
                          'generic')
 
         self.assertRaises(LookupError, clusto.get_type_name, 123)
-        
+
 
     def testAttributeOldVersionsInGetEntities(self):
- 
+
         sl = [BasicServer('s' + str(x)) for x in range(10)]
         for n, s in enumerate(sl):
             s.add_attr(key='old', value="val")
             s.del_attrs(key='old')
             s.add_attr(key='new', value='foo')
-            
+
         l=clusto.get_entities(attrs=[{'key':'old', 'value':'val'}])
 
         self.assertEqual(l, [])
-            
+
 
     def testSiblings(self):
 
@@ -362,7 +362,7 @@ class TestClusto(testbase.ClustoTestBase):
 
         db.set_attr('pooltype', 'role')
         web.set_attr('pooltype', 'role')
-        
+
         db.insert(d1)
         db.insert(d2)
         db.insert(d3)
@@ -381,10 +381,10 @@ class TestClusto(testbase.ClustoTestBase):
         map(alpha.insert, [d7, d8])
         map(beta.insert, [d3,d6])
 
-        
+
         self.assertEquals(sorted([d2]),
                           sorted(d1.siblings()))
-        
+
         self.assertEquals(sorted(d3.siblings()),
                           sorted([]))
 
@@ -395,6 +395,3 @@ class TestClusto(testbase.ClustoTestBase):
         self.assertEquals(sorted(d7.siblings(parent_filter=lambda x: not x.attr_values('pooltype', 'role'),
                                              additional_pools=[db])),
                           sorted([d8]))
-
-
-        

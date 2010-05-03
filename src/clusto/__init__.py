@@ -1,5 +1,3 @@
-
-
 from clusto.schema import *
 from clusto.exceptions import *
 
@@ -54,7 +52,7 @@ def flush():
     """Flush changes made to clusto objects to the database."""
 
     SESSION.flush()
-            
+
 
 
 def clear():
@@ -77,7 +75,7 @@ def get_driver_name(name):
         return name.driver
     else:
         raise LookupError("Couldn't find driver name.")
-    
+
 def get_type_name(name):
 
     if isinstance(name, str):
@@ -92,7 +90,7 @@ def get_type_name(name):
         return name.type
     else:
         raise LookupError("Couldn't find type name.")
-        
+
 
 def get_driver(entity):
     """Return the driver to use for a given entity """
@@ -107,7 +105,7 @@ def get_entities(names=(), clusto_types=(), clusto_drivers=(), attrs=()):
 
     @param names: list of names to match
     @type names: list of strings
-    
+
     @param clustotypes: list of clustotypes to match
     @param clustotypes: list of strings or Drivers
 
@@ -115,10 +113,10 @@ def get_entities(names=(), clusto_types=(), clusto_drivers=(), attrs=()):
     @type clustodrives: list of strings or Drivers
 
     @param attrs: list of attribute parameters
-    @type attrs: list of dictionaries with the following 
+    @type attrs: list of dictionaries with the following
                  valid keys: key, number, subkey, value
     """
-    
+
     query = Entity.query()
 
     if names:
@@ -135,7 +133,7 @@ def get_entities(names=(), clusto_types=(), clusto_drivers=(), attrs=()):
     if attrs:
         query = query.filter(Attribute.entity_id==Entity.entity_id)
 
-        query = query.filter(or_(*[Attribute.queryarg(**args) 
+        query = query.filter(or_(*[Attribute.queryarg(**args)
                                    for args in attrs]))
 
     return [Driver(entity) for entity in query.all()]
@@ -172,13 +170,13 @@ def get_from_pools(pools, clusto_types=(), clusto_drivers=()):
         resultsets.append(contents)
 
     return reduce(set.intersection, resultsets)
-                   
+
 def get_by_name(name):
     try:
         entity = Entity.query().filter_by(name=name).one()
 
         retval = Driver(entity)
-            
+
         return retval
     except InvalidRequestError:
         raise LookupError(name + " does not exist.")
@@ -241,7 +239,7 @@ def rename(oldname, newname):
 
     try:
         begin_transaction()
-        
+
         new = get_driver(old.entity)(newname)
 
         for attr in old.attrs(ignore_hidden=False):
@@ -260,7 +258,7 @@ def rename(oldname, newname):
 
         for counter in SESSION.query(Counter).filter(Counter.entity==old.entity):
             counter.entity = new.entity
-            
+
         old.entity.delete()
         commit()
     except Exception, x:
@@ -281,7 +279,7 @@ def _check_transaction_counter():
 
     if not hasattr(tl, 'TRANSACTIONCOUNTER'):
         raise TransactionException("No transaction counter.  Outside of a transaction.")
-    
+
     if tl.TRANSACTIONCOUNTER < 0:
         raise TransactionException("Negative transaction counter!  SHOULD NEVER HAPPEN!")
 
@@ -290,25 +288,25 @@ def _init_transaction_counter():
     tl = SESSION()
     if not hasattr(tl, 'TRANSACTIONCOUNTER'):
         tl.TRANSACTIONCOUNTER = 0
-    elif tl.TRANSACTIONCOUNTER != 0:        
+    elif tl.TRANSACTIONCOUNTER != 0:
         raise TransactionException("Transaction counter already initialized. At %d." % tl.TRANSACTIONCOUNTER)
-    
+
 def _inc_transaction_counter():
     _check_transaction_counter()
 
     tl = SESSION()
-    
+
     tl.TRANSACTIONCOUNTER += 1
-    
+
 def _dec_transaction_counter():
 
     _check_transaction_counter()
-    
+
     tl = SESSION()
-    
+
     tl.TRANSACTIONCOUNTER -= 1
 
-    
+
 def begin_transaction():
     """Start a transaction
 
@@ -346,19 +344,19 @@ def change_driver(thingname, newdriver):
     """
     if not issubclass(newdriver, Driver):
         raise DriverException("%s is not a driver" % str(newdriver))
-    
+
     try:
         begin_transaction()
-        
+
         thing = get_by_name(thingname)
 
         thing.entity._set_driver_and_type(newdriver._driver_name, newdriver._clusto_type)
-        
+
         commit()
     except Exception, x:
         rollback_transaction()
         raise x
-    
+
 
 def commit():
     """Commit changes to the datastore"""
@@ -386,7 +384,7 @@ def commit():
                 raise exc
         _dec_transaction_counter()
         flush()
-            
+
 
 def disconnect():
     SESSION.close()
@@ -400,6 +398,3 @@ def delete_entity(entity):
     except Exception, x:
         rollback_transaction()
         raise x
-    
-
-    

@@ -39,7 +39,7 @@ CLUSTO_VERSIONING = Table('clustoversioning', METADATA,
                           Column('user', String(64), default=None),
                           Column('description', Text, default=None),
                           mysql_engine='InnoDB'
-                          
+
                           )
 
 class ClustoEmptyCommit(Exception):
@@ -66,7 +66,7 @@ class ClustoSession(sqlalchemy.orm.interfaces.SessionExtension):
 
     def after_commit(self, session):
         SESSION.flushed = set()
-        
+
     def after_flush(self, session, flush_context):
         SESSION.flushed.update(x for x in session)
 
@@ -188,7 +188,7 @@ class ProtectedObj(object):
 
     ## this is a hack to make these objects immutable-ish
     writable = False
-    
+
     @staticmethod
     def writer(func):
         @wraps(func)
@@ -198,18 +198,18 @@ class ProtectedObj(object):
             self.writable = False
             return res
         return newfunc
-            
+
     def __setattr__(self, name, val):
         if (name.startswith('_sa_')
             or self.writable
             or name == 'writable'):
-            super(ProtectedObj, self).__setattr__(name, val)            
+            super(ProtectedObj, self).__setattr__(name, val)
         else:
             raise Exception("Not Writable")
 
 
 
-    
+
 class Attribute(ProtectedObj):
     """Attribute class holds key/value pair
 
@@ -219,7 +219,7 @@ class Attribute(ProtectedObj):
     Each Attribute is associated with an Entity.
 
     There can be multiple attributes with the same key, number, subkey, and/or
-    value.  
+    value.
 
     Optionally you can explicitely set int_value, string_value,
     datetime_value, relation_id, and datatype.  These settings would override
@@ -232,7 +232,7 @@ class Attribute(ProtectedObj):
 
         self.entity = entity
         self.key = key
-        
+
         self.value = value
 
         self.subkey = subkey
@@ -250,7 +250,7 @@ class Attribute(ProtectedObj):
         SESSION.flush()
 
 
-        
+
     def __cmp__(self, other):
 
         if not isinstance(other, Attribute):
@@ -258,7 +258,7 @@ class Attribute(ProtectedObj):
                             "Got a %s instead." % (type(other).__name__))
 
         return cmp(self.key, other.key)
-    
+
     def __eq__(self, other):
 
         if not isinstance(other, Attribute):
@@ -270,7 +270,7 @@ class Attribute(ProtectedObj):
 
         params = ('key','value','subkey','number','datatype','version', 'deleted_at_version')
                   #'int_value','string_value','datetime_value','relation_id')
-                  
+
 
         vals = ((x,getattr(self,x)) for x in params)
         strs = ("%s=%s" % (key, ("'%s'" % val if isinstance(val,basestring) else '%s'%str(val))) for key, val in vals)
@@ -289,7 +289,7 @@ class Attribute(ProtectedObj):
     @property
     def is_relation(self):
         return self.datatype == 'relation'
-    
+
     def get_value_type(self, value=None):
         if value == None:
             if self.datatype == None:
@@ -298,7 +298,7 @@ class Attribute(ProtectedObj):
                 valtype = self.datatype
         else:
             valtype = self.get_type(value)
-        
+
         return valtype + "_value"
 
     @property
@@ -329,8 +329,8 @@ class Attribute(ProtectedObj):
             datatype = 'string'
 
         return datatype
-        
-        
+
+
     def _get_value(self):
 
         if self.get_value_type() == 'relation_value':
@@ -343,7 +343,7 @@ class Attribute(ProtectedObj):
                 return val
 
     def _set_value(self, value):
-        
+
         if not isinstance(value, sqlalchemy.sql.ColumnElement):
             self.datatype = self.get_type(value)
             if self.datatype == 'int':
@@ -357,19 +357,19 @@ class Attribute(ProtectedObj):
     @ProtectedObj.writer
     def delete(self):
         ### TODO this seems like a hack
-        
+
         self.deleted_at_version = working_version()
-        
+
     @classmethod
     def queryarg(cls, key=None, value=(), subkey=(), number=()):
 
         args = [or_(cls.deleted_at_version==None,
                     cls.deleted_at_version>SESSION.clusto_version),
                 cls.version<=SESSION.clusto_version]
-        
+
         if key:
             args.append(Attribute.key==key)
-            
+
         if number is not ():
             args.append(Attribute.number==number)
 
@@ -385,9 +385,9 @@ class Attribute(ProtectedObj):
                     e = value.entity
                 else:
                     e = value
-                    
+
                 args.append(getattr(Attribute, 'relation_id') == e.entity_id)
-                
+
             else:
                 args.append(getattr(Attribute, valtype) == value)
 
@@ -426,7 +426,7 @@ class Entity(ProtectedObj):
         self.version = working_version()
         SESSION.add(self)
         SESSION.flush()
-        
+
     def __eq__(self, otherentity):
         """Am I the same as the Other Entity.
 
@@ -439,14 +439,14 @@ class Entity(ProtectedObj):
             retval = False
         else:
             retval = self.name == otherentity.name
-        
+
         return retval
 
     def __cmp__(self, other):
 
         if not hasattr(other, 'name'):
             raise TypeError("Can only compare equality with an Entity-like "
-                            "object.  Got a %s instead." 
+                            "object.  Got a %s instead."
                             % (type(other).__name__))
 
         return cmp(self.name, other.name)
@@ -455,14 +455,14 @@ class Entity(ProtectedObj):
     def __repr__(self):
         s = "%s(name=%s, driver=%s, clustotype=%s, version=%s, deleted_at_version=%s)"
 
-        return s % (self.__class__.__name__, 
+        return s % (self.__class__.__name__,
                     self.name, self.driver, self.type, str(self.version), str(self.deleted_at_version))
 
     def __str__(self):
         "Return string representing this entity"
-            
+
         return str(self.name)
-            
+
     @property
     def attrs(self):
         return Attribute.query().filter(and_(Attribute.entity==self,
@@ -476,8 +476,8 @@ class Entity(ProtectedObj):
                                              and_(or_(ATTR_TABLE.c.deleted_at_version>SESSION.clusto_version,
                                                       ATTR_TABLE.c.deleted_at_version==None),
                                                   ATTR_TABLE.c.version<=SESSION.clusto_version))).all()
-        
-        
+
+
     def add_attr(self, *args, **kwargs):
 
         return Attribute(self, *args, **kwargs)
@@ -488,14 +488,14 @@ class Entity(ProtectedObj):
 
         clusto.begin_transaction()
         try:
-            self.deleted_at_version = working_version() 
+            self.deleted_at_version = working_version()
 
             for i in self.references:
                 i.delete()
 
             for i in self.attrs:
                 i.delete()
-                
+
             clusto.commit()
         except Exception, x:
             clusto.rollback_transaction()
@@ -512,7 +512,7 @@ class Entity(ProtectedObj):
         """sets the driver and type for the entity
 
         this shouldn't be too dangerous, but be careful
-        
+
         params:
           driver: the driver name
           clusto_type: the type name
@@ -520,7 +520,7 @@ class Entity(ProtectedObj):
 
         try:
             clusto.begin_transaction()
-        
+
             self.type = clusto_type
             self.driver = driver
 
@@ -534,11 +534,11 @@ mapper(ClustoVersioning, CLUSTO_VERSIONING)
 
 mapper(Counter, COUNTER_TABLE,
        properties = {'entity': relation(Entity, lazy=True, uselist=False)},
-           
+
        )
 
-mapper(Attribute, ATTR_TABLE,       
-       properties = {'relation_value': relation(Entity, lazy=True, 
+mapper(Attribute, ATTR_TABLE,
+       properties = {'relation_value': relation(Entity, lazy=True,
                                                 primaryjoin=ATTR_TABLE.c.relation_id==ENTITY_TABLE.c.entity_id,
                                                 uselist=False,
                                                 passive_updates=False),
@@ -551,4 +551,3 @@ mapper(Attribute, ATTR_TABLE,
 mapper(Entity, ENTITY_TABLE,
 
        )
-

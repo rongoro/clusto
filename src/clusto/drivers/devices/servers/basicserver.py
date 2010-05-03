@@ -17,8 +17,8 @@ class BasicServer(IPMixin, PortMixin, Device):
                  'console-serial' : { 'numports':1, }
                  }
 
-    
-    
+
+
 class BasicVirtualServer(BasicServer):
 
     _clusto_type = "virtualserver"

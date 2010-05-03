@@ -41,7 +41,7 @@ class Driver(object):
     >>> d = MyDriver('foo')
     >>> d.propA == 10
     True
-    
+
     >>> d.propB == "default1"
     True
 
@@ -52,10 +52,10 @@ class Driver(object):
     >>> d.propA == 54
     True
 
-    Several conventions are also exposed via the Driver interface.  
-    
+    Several conventions are also exposed via the Driver interface.
+
     """
-    
+
     __metaclass__ = ClustoDriver
 
     _clusto_type = "generic"
@@ -86,10 +86,10 @@ class Driver(object):
                             "Driver, or Entity.")
 
         if isinstance(name_driver_entity, Driver):
-            return 
+            return
 
         if isinstance(name_driver_entity, Entity):
-            
+
             self.entity = name_driver_entity
             self._choose_best_driver()
             return
@@ -99,7 +99,7 @@ class Driver(object):
                 existing = clusto.get_by_name(name_driver_entity)
             except LookupError, x:
                 existing = None
-            
+
             if existing:
                 raise NameException("Driver with the name %s already exists."
                                     % (name_driver_entity))
@@ -134,7 +134,7 @@ class Driver(object):
 
         s = "%s(name=%s, type=%s, driver=%s)"
 
-        return s % (self.__class__.__name__, self.entity.name, 
+        return s % (self.__class__.__name__, self.entity.name,
                     self.entity.type, self.entity.driver)
 
     def __cmp__(self, other):
@@ -151,7 +151,7 @@ class Driver(object):
 
     def __contains__(self, other):
         return self.has_attr(key="_contains", value=other)
-    
+
     def _choose_best_driver(self):
         """
         Examine the attributes of our entity and set the best driver class and
@@ -159,8 +159,8 @@ class Driver(object):
         """
 
         self.__class__ = DRIVERLIST[self.entity.driver]
-    
-        
+
+
 
     name = property(lambda x: x.entity.name)
 
@@ -179,10 +179,10 @@ class Driver(object):
             raise NameException("Attribute name %s is invalid. "
                                 "Attribute names may not contain periods or "
                                 "comas." % key)
-    
+
 
     def __getattr__(self, name):
-        if name in self._properties:                
+        if name in self._properties:
             attr = self.attr_query(name, subkey='property')
             if not attr:
                 return self._properties[name]
@@ -198,7 +198,7 @@ class Driver(object):
             self.set_attr(name, value, subkey='property')
         else:
             object.__setattr__(self, name, value)
-        
+
     @classmethod
     def ensure_driver(self, obj, msg=None):
         """Ensure that the given argument is a Driver.
@@ -207,7 +207,7 @@ class Driver(object):
         returned.  If it's a Driver it will be returned unaffected.  Otherwise
         a TypeError is raised with either a generic or given message.
         """
-        
+
         if isinstance(obj, Entity):
             d = Driver(obj)
         elif isinstance(obj, Driver):
@@ -218,17 +218,17 @@ class Driver(object):
             raise TypeError(msg)
 
         return d
-        
+
     @classmethod
     def do_attr_query(cls, key=(), value=(), number=(),
-                    subkey=(), ignore_hidden=True, sort_by_keys=False, 
+                    subkey=(), ignore_hidden=True, sort_by_keys=False,
                     glob=False, count=False, querybase=None, return_query=False,
                     entity=None):
         """Does queries against all Attributes using the DB."""
 
         clusto.flush()
         if querybase:
-            query = querybase 
+            query = querybase
         else:
             query = Attribute.query()
 
@@ -272,7 +272,7 @@ class Driver(object):
                     query = query.filter(Attribute.number == None)
             elif isinstance(number, (int, long)):
                 query = query.filter_by(number=number)
-                
+
             else:
                 raise TypeError("number must be either a boolean or an integer.")
 
@@ -292,16 +292,16 @@ class Driver(object):
 
     def attr_query(self, *args, **kwargs):
         """Queries all attributes of *this* entity using the DB."""
-        
+
         kwargs['entity'] = self.entity
 
         return self.do_attr_query(*args, **kwargs)
 
     @classmethod
-    def attr_filter(cls, attrlist, key=(), value=(), number=(), 
-                   subkey=(), ignore_hidden=True, 
-                   sort_by_keys=True, 
-                   regex=False, 
+    def attr_filter(cls, attrlist, key=(), value=(), number=(),
+                   subkey=(), ignore_hidden=True,
+                   sort_by_keys=True,
+                   regex=False,
                    clusto_types=None,
                    clusto_drivers=None,
                    ):
@@ -337,10 +337,10 @@ class Driver(object):
         result = attrlist
 
         def subfilter(attrs, val, name):
-            
+
             if regex:
                 testregex = re.compile(val)
-                result = (attr for attr in attrs 
+                result = (attr for attr in attrs
                           if testregex.match(getattr(attr, name)))
 
             else:
@@ -366,11 +366,11 @@ class Driver(object):
 
             elif isinstance(number, (int, long)):
                 result = (attr for attr in result if attr.number == number)
-            
+
             else:
                 raise TypeError("number must be either a boolean or an integer.")
 
-                    
+
         if value:
             result = (attr for attr in result if attr.value == value)
 
@@ -388,16 +388,16 @@ class Driver(object):
         if clusto_types:
             ctl = [clusto.get_type_name(n) for n in clusto_types]
             result = (attr for attr in result if attr.is_relation and attr.value.entity.type in ctl)
-            
+
         if sort_by_keys:
             result = sorted(result)
 
-        
+
         return list(result)
 
     def _itemize_attrs(self, attrlist):
         return [(x.keytuple, x.value) for x in attrlist]
-        
+
     def attrs(self, *args, **kwargs):
         """Return attributes for this entity.
 
@@ -409,7 +409,7 @@ class Driver(object):
         else:
             merge_container_attrs = False
 
-        attrs = self.attr_filter(self.entity.attrs, *args, **kwargs) 
+        attrs = self.attr_filter(self.entity.attrs, *args, **kwargs)
 
         if merge_container_attrs:
             kwargs['merge_container_attrs'] = merge_container_attrs
@@ -429,23 +429,23 @@ class Driver(object):
         extra parameters:
           default - the default value to return if none exist
         """
-        
+
         if 'default' in kwargs:
             default = kwargs.pop('default')
         else:
             default = None
-            
+
         vals = self.attr_values(*args, **kwargs)
 
         if vals:
             if len(vals) != 1:
-                raise DriverException("args match more than one value")         
+                raise DriverException("args match more than one value")
             return vals[0]
-        else:            
+        else:
             return default
-        
+
     def references(self, *args, **kwargs):
-        """Return the references to this Thing. The references are attributes. 
+        """Return the references to this Thing. The references are attributes.
 
         Accepts the same arguments as attrs().
 
@@ -454,11 +454,11 @@ class Driver(object):
         opposed to the Entity the attribute refers to.
         """
 
-        
+
         clusto_drivers = kwargs.pop('clusto_drivers', None)
-            
+
         clusto_types = kwargs.pop('clusto_types', None)
-        
+
         result = self.attr_filter(self.entity.references, *args, **kwargs)
 
         if clusto_drivers:
@@ -474,18 +474,18 @@ class Driver(object):
 
     def referencers(self, *args, **kwargs):
         """Return the Things that reference _this_ Thing.
-        
+
         Accepts the same arguments as references() but adds an instanceOf filter
         argument.
         """
-        
+
         refs = [Driver(a.entity) for a in sorted(self.references(*args, **kwargs),
                                                  lambda x,y: cmp(x.attr_id,
                                                                  y.attr_id))]
 
         return refs
 
-                   
+
     def attr_keys(self, *args, **kwargs):
 
         return [x.key for x in self.attrs(*args, **kwargs)]
@@ -503,14 +503,14 @@ class Driver(object):
         if number is True, create an attribute with the next available
         otherwise number just gets passed to the Attribute constructor so it
         can be an integer or an sqlalchemy expression
-        
+
         An optional subkey can also be specified. Subkeys don't affect
         numbering by default.
         """
 
         if isinstance(key, Attribute):
             raise Exception("Unsupported Operation.  You can no longer add an attribute directly")
-        
+
         self._check_attr_name(key)
         if subkey:
             self._check_attr_name(subkey)
@@ -542,7 +542,7 @@ class Driver(object):
 
 
     def set_attr(self, key, value, number=False, subkey=None):
-        """replaces all attributes with the given key"""        
+        """replaces all attributes with the given key"""
         self._check_attr_name(key)
 
         attrs = self.attrs(key=key, number=number, subkey=subkey)
@@ -558,9 +558,9 @@ class Driver(object):
 
             attr = self.add_attr(key, value, number=number, subkey=subkey)
 
-        return attr        
+        return attr
 
-    
+
     def has_attr(self, *args, **kwargs):
         """return True if this list has an attribute with the given key"""
 
@@ -568,18 +568,18 @@ class Driver(object):
             return True
 
         return False
-    
+
     def insert(self, thing):
         """Insert the given Enity or Driver into this Entity.  Such that:
 
         >>> A.insert(B)
-        >>> (B in A) 
+        >>> (B in A)
         True
 
 
         """
-        
-        d = self.ensure_driver(thing, 
+
+        d = self.ensure_driver(thing,
                               "Can only insert an Entity or a Driver. "
                               "Tried to insert %s." % str(type(thing)))
 
@@ -591,10 +591,10 @@ class Driver(object):
                             % (d.name, parent[0].entity.name, self.name))
 
         self.add_attr("_contains", d, number=True)
-        
+
     def remove(self, thing):
         """Remove the given Entity or Driver from this Entity. Such that:
-        
+
         >>> A.insert(B)
         >>> B in A
         True
@@ -619,7 +619,7 @@ class Driver(object):
 
         """
 
-        attrs = self.attrs("_contains", *args, **kwargs) 
+        attrs = self.attrs("_contains", *args, **kwargs)
 
         return attrs
 
@@ -630,7 +630,7 @@ class Driver(object):
         >>> A.insert(C)
         >>> A.contents()
         [B, C]
-        
+
         """
 
         if 'search_children' in kwargs:
@@ -646,7 +646,7 @@ class Driver(object):
 
         return contents
 
-    def parents(self, **kwargs):        
+    def parents(self, **kwargs):
         """Return a list of Things that contain _this_ Thing. """
 
         search_parents = kwargs.pop('search_parents', False)
@@ -677,12 +677,12 @@ class Driver(object):
 
         if parent_kwargs is None:
             parent_kwargs = dict(clusto_types=[clusto.drivers.Pool])
-            
+
         parents = self.parents(**parent_kwargs)
 
         if parent_filter:
             parents = filter(parent_filter, parents)
-            
+
         if additional_pools:
             parents.extend(additional_pools)
 
@@ -691,15 +691,15 @@ class Driver(object):
     @classmethod
     def get_by_attr(cls, *args, **kwargs):
         """Get list of Drivers that have by attributes search """
-        
+
         attrlist = cls.do_attr_query(*args, **kwargs)
 
         objs = [Driver(x.entity) for x in attrlist]
 
         return objs
-            
 
-    
+
+
     @property
     def name(self):
         return self.entity.name

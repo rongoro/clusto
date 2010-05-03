@@ -1,4 +1,3 @@
-
 from clusto.drivers.base import Driver
 import sys
 
@@ -25,7 +24,7 @@ class Device(Driver):
             return hostname[0].value
         else:
             return self.entity.name
-        
+
     def _set_hostname(self, name):
 
         self.set_attr("hostname", value=name)
@@ -41,13 +40,13 @@ class Device(Driver):
 
     def add_fqdn(self, fqdn):
         """add a fully qualified domain name"""
-        
+
         if not self.has_attr("fqdn", number=True, value=fqdn):
             self.add_attr("fqdn", number=True, value=fqdn)
 
     def remove_fqdn(self, fqdn):
         """remove a fully qualified domain name"""
-        
+
         self.del_attrs("fqdn", number=True, value=fqdn)
 
     def _power_captcha(self):
