@@ -64,7 +64,7 @@ def main():
     action, object = args[:2]
 
     try:
-        object = clusto.get_by_name(object)
+        object = clusto.get(object)
     except LookupError:
         sys.stderr.write('%s does not exist\n' % object)
         return -1

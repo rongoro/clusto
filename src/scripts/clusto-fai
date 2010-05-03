@@ -10,7 +10,7 @@ def main():
         return -1
 
     try:
-        server = clusto.get_by_name(sys.argv[1])
+        server = clusto.get(sys.argv[1])
     except LookupError:
         sys.stderr.write('%s does not exist.' % sys.argv[1])
         return -1

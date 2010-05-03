@@ -187,7 +187,7 @@ def main():
         return -1
 
     try:
-        obj = clusto.get_by_name(args[0])
+        obj = clusto.get(args[0])
     except LookupError:
         sys.stderr.write('Object does not exist: %s\n' % args[0])
         return -1
