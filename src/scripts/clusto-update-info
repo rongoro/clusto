@@ -170,9 +170,9 @@ def update_server(server, info):
         if not ifname in info['network']:
             continue
 
-        if server.attrs(subkey='mac', value=info['network'].get(ifname, {}).get('hwaddr', '')):
-            continue
-        server.del_port_attr('nic-eth', ifnum + 1, 'mac')
+        #if server.attrs(subkey='mac', value=info['network'].get(ifname, {}).get('hwaddr', '')):
+        #    continue
+        #server.del_port_attr('nic-eth', ifnum + 1, 'mac')
         server.set_port_attr('nic-eth', ifnum + 1, 'mac', info['network'][ifname]['hwaddr'])
 
         if 'inet addr' in info['network'][ifname]:
