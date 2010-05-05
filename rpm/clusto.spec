@@ -8,7 +8,7 @@
 %{!?_with_psycopg2: %{!?_without_psycopg2: %define _without_psycopg2 --without-psycopg2}}
 
 Name:		clusto
-Version:	0.5.26
+Version:	0.5.27
 Release:	4%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
@@ -81,6 +81,9 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Wed May 5 2010 Jeremy Grosser <synack@digg.com> - 0.5.27-1
+- Version bump
+
 * Wed May 5 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.26-4
 - Adding python-IPy dependency
 

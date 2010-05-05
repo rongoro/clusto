@@ -1,3 +1,12 @@
+clusto (0.5.27-1) unstable; urgency=low
+
+  * Use clusto.get on command line tools
+  * Switch clusto-update-info to using sysinfo.py
+  * RPM build
+  * clusto-info cleanup
+
+ -- Jeremy Grosser <synack@digg.com>  Wed, 05 May 2010 15:37:33 -0700
+
 clusto (0.5.26-1) unstable; urgency=low
 
   * Add support for 2U servers and rack layouts
