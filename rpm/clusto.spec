@@ -9,7 +9,7 @@
 
 Name:		clusto
 Version:	0.5.26
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -31,6 +31,7 @@ BuildRequires:	python-setuptools
 Requires:	python-sqlalchemy >= 0.5
 Requires:	ipython
 Requires:	libvirt-python
+Requires:   python-IPy
 Requires:   scapy >= 2.0
 %{?_with_mysql:Requires: MySQL-python}
 %{?_with_psycopg2:Requires: python-psycopg2}
@@ -80,6 +81,9 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Wed May 5 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.26-4
+- Adding python-IPy dependency
+
 * Wed May 5 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.26-3
 - Packager should go in ~/.rpmmacros
 
