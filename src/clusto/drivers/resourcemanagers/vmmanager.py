@@ -147,7 +147,7 @@ class VMManager(ResourceManager):
             raise ResourceException("%s is already assigned to %s"
                                     % (thing.name, res.value))
 
-        attr = super(VMManager, self).allocate(thing, resource, number)
+        attr = super(VMManager, self).allocate(thing, resource, number, **kwargs)
 
         return attr
     

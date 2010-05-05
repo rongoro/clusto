@@ -125,6 +125,20 @@ class VMManagerTest(testbase.ClustoTestBase):
         self.assertRaises(ResourceException, vmm.allocate, vs1, s1)
         self.assertRaises(ResourceException, vmm.allocate, vs1, s2)
 
+        self.assertEqual([r.value for r in vmm.resources(vs1)],
+                         [clusto.get_by_name('s1')])
+
+        self.assertRaises(ResourceException, vmm.allocate, vs2, s1)
+
+        self.assertEqual([r.value for r in vmm.resources(vs2)],
+                         [])
+
+        vmm.allocate(vs2, s1, force=True)
+
+        self.assertEqual([r.value for r in vmm.resources(vs2)],
+                         [clusto.get_by_name('s1')])
+
+
     def testAddingAndRemovingHosts(self):
 
         s1 = clusto.get_by_name('s1')
