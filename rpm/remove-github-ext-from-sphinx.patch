@@ -1,0 +1,14 @@
+diff --git a/doc/conf.py b/doc/conf.py
+index f5a45ee..6138860 100644
+--- a/doc/conf.py
++++ b/doc/conf.py
+@@ -23,8 +23,7 @@ import sys, os
+ 
+ # Add any Sphinx extension module names here, as strings. They can be extensions
+ # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+-extensions = ['sphinx.ext.autodoc', 'sphinxtogithub']
+-sphinx_to_github = True
++extensions = ['sphinx.ext.autodoc']
+ 
+ # Add any paths that contain templates here, relative to this directory.
+ templates_path = ['.templates']

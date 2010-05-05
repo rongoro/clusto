@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from socket import gethostbyname
 
 from clusto.scripthelpers import init_script

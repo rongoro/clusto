@@ -1,0 +1,58 @@
+diff --git a/doc/getting_started.rst b/doc/getting_started.rst
+index cd31ff8..3556485 100644
+--- a/doc/getting_started.rst
++++ b/doc/getting_started.rst
+@@ -30,9 +30,9 @@ From source
+ As root::
+ 
+  # python setup.py install
+- # mkdir /etc/clusto /var/lib/clusto
++ # mkdir /etc/clusto /usr/libexec/clusto
+  # cp conf/* /etc/clusto/
+- # cp contrib/* /var/lib/clusto/
++ # cp contrib/* /usr/libexec/clusto/
+ 
+ You may need to install additional python libraries for certain features of clusto to function properly.
+ 
+diff --git a/doc/using.rst b/doc/using.rst
+index b04bc66..3ffca14 100644
+--- a/doc/using.rst
++++ b/doc/using.rst
+@@ -67,9 +67,9 @@ Using clusto-shell we can instantiate our new datacenter and test the remote_han
+ 
+ Adding racks to the datacenter
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-Rack factories are fairly specific to each organization's environment... Common rack layouts are uncommon. For these types of highly-customized features, you'll need to modify the files in /var/lib/clusto to suit your needs. Clusto ships with some examples of the files used by Digg.
++Rack factories are fairly specific to each organization's environment... Common rack layouts are uncommon. For these types of highly-customized features, you'll need to modify the files in /usr/libexec/clusto to suit your needs. Clusto ships with some examples of the files used by Digg.
+ 
+-Take a look at /var/lib/clusto/rackfactory.py to get an idea of how to programatically define rack layouts.
++Take a look at /usr/libexec/clusto/rackfactory.py to get an idea of how to programatically define rack layouts.
+ 
+ Continuing our example from above, let's assume the remote hands at the datacenter plugged in your new rack and closed the ticket. Now you want to be able to manipulate the rack in clusto and start adding servers to it. Let's go back to clusto-shell::
+ 
+diff --git a/src/clusto/services/snmp.py b/src/clusto/services/snmp.py
+index 8bb7cf8..130a8a0 100644
+--- a/src/clusto/services/snmp.py
++++ b/src/clusto/services/snmp.py
+@@ -21,7 +21,7 @@ from scapy.all import SNMP
+ from clusto.drivers import IPManager, PenguinServer
+ import clusto
+ 
+-sys.path.insert(0, '/var/lib/clusto')
++sys.path.insert(0, '/usr/libexec/clusto')
+ import rackfactory
+ 
+ def update_clusto(trap):
+diff --git a/src/scripts/clusto-discover-subnet b/src/scripts/clusto-discover-subnet
+index 163363f..d3fdf96 100755
+--- a/src/scripts/clusto-discover-subnet
++++ b/src/scripts/clusto-discover-subnet
+@@ -9,7 +9,7 @@ from clusto.drivers import IPManager, PenguinServer
+ from clusto.scripthelpers import init_script
+ import clusto
+ 
+-sys.path.append('/var/lib/clusto')
++sys.path.append('/usr/libexec/clusto')
+ from sysinfo import discover_hardware, update_server
+ 
+ def main():
