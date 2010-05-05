@@ -106,7 +106,7 @@ class ResourceManager(Driver):
     def additional_attrs(self, thing, resource, number):
         pass
     
-    def allocate(self, thing, resource=(), number=True):
+    def allocate(self, thing, resource=(), number=True, force=False):
         """allocates a resource element to the given thing.
 
         resource - is passed as an argument it will be checked 
@@ -130,7 +130,7 @@ class ResourceManager(Driver):
 
             else:
                 resource, number = self.ensure_type(resource, number, thing)
-                if not self.available(resource, number, thing):
+                if not force and not self.available(resource, number, thing):
                     raise ResourceException("Requested resource is not available.")
 
             if self._record_allocations:
