@@ -9,7 +9,7 @@
 
 Name:		clusto
 Version:	0.5.26
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -20,7 +20,6 @@ Patch0:		remove-github-ext-from-sphinx.patch
 Patch1:		replace-var-with-libexec.patch
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:	noarch
-Packager:	Jorge A Gallegos <kad@blegh.net>
 
 BuildRequires:	python-devel
 BuildRequires:	python-sphinx-doc
@@ -81,6 +80,9 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Wed May 5 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.26-3
+- Packager should go in ~/.rpmmacros
+
 * Tue May 4 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.26-2
 - Moved contrib from /var/lib/clusto to /usr/libexec/clusto
 - Added sysconf directory defaults
