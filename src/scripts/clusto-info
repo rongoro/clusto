@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 from clusto.scripthelpers import init_script
-from clusto.drivers import IPManager
+from clusto.drivers import IPManager, VMManager
 import clusto
 
 import sys
 import re
+
+def format_line(key, value, pad=20):
+    if isinstance(value, list):
+        value = ', '.join(value)
+    key += ':'
+    print key.ljust(pad, ' '), value
 
 def device_info(obj):
     print 'Name:'.ljust(20, ' '), obj.name
@@ -12,29 +18,35 @@ def device_info(obj):
 
     ip = IPManager.get_ips(obj)
     if ip:
-        print 'IP:'.ljust(20, ' '), ', '.join(ip)
+        format_line('IP', ip)
     parents = obj.parents()
     if parents:
-        print 'Parents:'.ljust(20, ' '), ', '.join([x.name for x in parents])
+        format_line('Parents', [x.name for x in parents])
     contents = obj.contents()
     if contents:
-        print 'Contents:'.ljust(20, ' '), ', '.join([x.name for x in contents])
+        format_line('Contents', [x.name for x in contents])
+    if obj.type == 'virtualserver':
+        hv = VMManager.resources(obj)
+        if hv:
+            format_line('Hypervisor', [x.value.name for x in hv])
+
     print '\n',
+
     serial = obj.attr_values(key='system', subkey='serial')
     if serial:
-        print 'Serial:'.ljust(20, ' '), ', '.join([x.rstrip('\r\n') for x in serial if x])
+        format_line('Serial', [x.rstrip('\r\n') for x in serial if x])
     memory = obj.attr_value(key='system', subkey='memory')
     if memory:
-        print 'Memory:'.ljust(20, ' '), memory / 1000, 'GB'
+        format_line('Memory', '%i GB' % (memory / 1000))
     disk = obj.attr_value(key='system', subkey='disk')
     if disk:
-        print 'Disk:'.ljust(20, ' '), '%i GB (%i)' % (disk, len(obj.attrs(key='disk', subkey='size')))
+        format_line('Disk', '%i GB (%i)' % (disk, len(obj.attrs(key='disk', subkey='size'))))
     cpucount = obj.attr_value(key='system', subkey='cpucount')
     if cpucount:
-        print 'CPU Cores:'.ljust(20, ' '), cpucount
+        format_line('CPU Cores', cpucount)
     desc = obj.attr_values(key='description')
     if desc:
-        print 'Description:'.ljust(20, ' '), '\n                    '.join(desc)
+        format_line('Description', '\n                    '.join(desc))
 
     ifaces = [('nic-eth(%i)' % x.number).ljust(20, ' ') + ' %s = %s' % (x.subkey, x.value) for x in obj.attrs(key='port-nic-eth') if x.subkey.find('mac') != -1]
     if ifaces:
@@ -47,33 +59,14 @@ def main():
 
     query = sys.argv[1]
     
-    if re.match('^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$', query):
-        quad = [int(x) for x in query.split('.', 3) if int(x) >= 0 and int(x) < 256]
-        if len(quad) == 4:
-            obj = IPManager.get_devices(query)
-            if obj:
-                device_info(obj[0])
-                return
+    result = clusto.get(query)
+    if not result:
+        sys.stderr.write('Object not found\n')
+        return -1
 
-    if re.match('[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}', query, re.IGNORECASE):
-        obj = clusto.get_entities(attrs=[
-            {
-                'subkey': 'mac',
-                'value': query.lower(),
-            }])
-        if obj:
-            [device_info(x) for x in obj]
-            return
-
-    try:
-        obj = clusto.get_by_name(query)
+    for obj in result:
         device_info(obj)
-        return
-    except LookupError:
-        pass
-
-    sys.stderr.write('Object not found\n')
-    return -1
+    return 0
 
 if __name__ == '__main__':
     init_script()
