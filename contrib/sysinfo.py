@@ -27,7 +27,7 @@ def discover_hardware(ip):
         if not line: continue
         line = [x for x in line.split(' ') if x]
         if not line[0].isdigit(): continue
-        if not re.match('^sd[a-z]$', line[3]): continue
+        if not re.match('^[hs]d[a-z]$', line[3]): continue
         name = line[3]
         blocks = int(line[2])
         blocks *= 1024
@@ -192,9 +192,9 @@ def update_server(server, info):
         if not ifname in info['network']:
             continue
 
-        if server.attrs(subkey='mac', value=info['network'].get(ifname, {}).get('hwaddr', '')):
-            continue
-        server.del_port_attr('nic-eth', ifnum + 1, 'mac')
+        #if server.attrs(subkey='mac', value=info['network'].get(ifname, {}).get('hwaddr', '')):
+        #    continue
+        #server.del_port_attr('nic-eth', ifnum + 1, 'mac')
         server.set_port_attr('nic-eth', ifnum + 1, 'mac', info['network'][ifname]['hwaddr'])
 
         if 'inet addr' in info['network'][ifname]:
