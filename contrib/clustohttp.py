@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 try:
     import simplejson as json
 except ImportError:

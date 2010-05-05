@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 from paramiko import SSHClient, MissingHostKeyPolicy
 from clusto.scripthelpers import init_script
 from clusto.drivers import PenguinServer
