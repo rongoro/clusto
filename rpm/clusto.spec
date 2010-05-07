@@ -16,8 +16,8 @@ Group:		Applications/System
 License:	BSD
 URL:		http://github.com/digg/clusto
 Source0:	http://github.com/digg/clusto/tarball/%{name}-%{version}.tar.gz
-Patch0:		remove-github-ext-from-sphinx.patch
-Patch1:		replace-var-with-libexec.patch
+Patch0:		rpm/remove-github-ext-from-sphinx.patch
+Patch1:		rpm/replace-var-with-libexec.patch
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:	noarch
 
