@@ -19,6 +19,14 @@ Update the index and install clusto::
  # aptitude update
  # aptitude install clusto
 
+Building an rpm package
+~~~~~~~~~~~~~~~~~~~~~~~
+You may need to install rpmdevtools beforehand, or run the rpmbuild as root::
+
+ $ cd rpm/
+ $ ./make_tarball.sh
+ $ rpmbuild -ta clusto-$VERSION.tar.gz
+
 From source
 ~~~~~~~~~~~
 ::
