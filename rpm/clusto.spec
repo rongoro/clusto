@@ -9,7 +9,7 @@
 
 Name:		clusto
 Version:	0.5.27
-Release:	4%{?dist}
+Release:	2%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -81,6 +81,9 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Thu May 6 2010 Jeremy Grosser <synack@digg.com> - 0.5.27-2
+- Fixed make_tarball.sh script
+
 * Wed May 5 2010 Jeremy Grosser <synack@digg.com> - 0.5.27-1
 - Version bump
 
