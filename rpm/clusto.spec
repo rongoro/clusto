@@ -1,6 +1,4 @@
-# Default variables
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
-%{!?py_version: %define py_version %(%{__python} -c "import sys; print sys.version[:3]")}
+%include %{_rpmconfigdir}/macros.python
 
 # Defaults to --with-mysql unless --without mysql is specified, should this change?
 %{!?_without_mysql: %{!?_with_mysql: %define _with_mysql --with-mysql}}
@@ -9,7 +7,7 @@
 
 Name:		clusto
 Version:	0.5.27
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -74,13 +72,16 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 %defattr(-,root,root,-)
 %doc README LICENSE doc/.build/html
 %config(noreplace) %{_sysconfdir}/%{name}
-%{python_sitelib}/%{name}
-%{python_sitelib}/%{name}-%{version}-py%{py_version}.egg-info
+%{py_sitedir}/%{name}
+%{py_sitedir}/%{name}-%{version}-py%{py_ver}.egg-info
 %attr(0755, root, root) %{_libexecdir}/%{name}/*
 %attr(0755, root, root) %{_bindir}/*
 
 
 %changelog
+* Sat May 8 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.27-3
+- Use standard python macros
+
 * Thu May 6 2010 Jeremy Grosser <synack@digg.com> - 0.5.27-2
 - Fixed make_tarball.sh script
 
