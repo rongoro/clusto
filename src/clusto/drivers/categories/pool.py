@@ -9,9 +9,9 @@ class Pool(Driver):
     """
     A Pool is used to group Entities into a collection that shares attributes.
 
-    Pools 
+    Pools
     """
-    
+
     _driver_name = "pool"
     _clusto_type = "pool"
 
@@ -22,30 +22,30 @@ class Pool(Driver):
         Such that:
 
         >>> A.insert(B)
-        >>> (B in A) 
+        >>> (B in A)
         True
 
         A given entity can only be in a Pool one time.
         """
-        
-        d = self.ensure_driver(thing, 
+
+        d = self.ensure_driver(thing,
                                "Can only insert an Entity or a Driver. "
                                "Tried to insert %s." % str(type(thing)))
 
         if d in self:
             raise PoolException("%s is already in pool %s." % (d, self))
-        
+
         self.add_attr("_contains", d, number=True)
-        
+
 
     def is_parent(self, thing):
         """
         Is this pool the parent of the given entity
         """
-        
-        d = self.ensure_driver(thing, 
+
+        d = self.ensure_driver(thing,
                                "Can only be the parent of a Driver or Entity.")
-        
+
         return self in d.contents()
 
     @classmethod
