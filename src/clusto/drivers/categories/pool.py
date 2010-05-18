@@ -79,8 +79,8 @@ class ExclusivePool(Pool):
         it is in NO other pools.
         """
 
-        pools = Pool.get_pools(thing):
-        if pools
+        pools = Pool.get_pools(thing)
+        if pools:
             raise PoolException("%s is already in pools %s, cannot insert "
                                 "exclusively." % (thing, pools))
 
