@@ -139,3 +139,31 @@ If you already have IPManager and SimpleEntityNameManager instances setup, the c
  $ clusto vm create --disk 20 --memory 1024
  Created v1000
  $ clusto vm start v1000
+
+Pool types
+~~~~~~~~~~
+Clusto currently supports three different types of "pools." Pools are used to group entities together and apply attributes to the groupings. The supported pool types are:
+
+Pool
+     This is your basic pool type. An entity can only be in a given pool once.
+ExclusivePool
+     A given entity can only be in an ExclusivePool if it is in NO other pools. This is useful for tracking things like unallocated servers; you would not want a server marked unallocated if it is already a member of your "production" pool.
+UniquePool
+     A given entity can only be in a UniquePool if it is not in any other UniquePool(s). This pool type is intended to be subclassed. For example you may want to create EnvironmentPool to represent "development", "staging", and "production" environments; UniquePool is useful because you would not want a given entity to be in both "production" and "development".
+
+::
+
+ from clusto.drivers import UniquePool, PenguinServer
+
+ class EnvironmentPool(UniquePool):
+     _driver_name = "environment_pool"
+
+ development = EnvironmentPool("development")
+ staging = EnvironmentPool("staging")
+ production = EnvironmentPool("production")
+ server = PenguinServer("s0001")
+ development.insert(server)
+ production.insert(server)
+
+PoolException: PenguinServer(name=s0001, type=server, driver=penguinserver) is already in UniquePool(s) [UniquePool(name=development, type=pool, driver=unique_pool)].
+
