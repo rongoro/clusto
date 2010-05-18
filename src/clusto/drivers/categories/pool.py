@@ -97,10 +97,9 @@ class UniquePool(Pool):
         A given entity can only be in ONE UniquePool.
         """
 
-        pools = get_entities(clusto_drivers=[UniquePool])
-        for pool in pools:
-            if thing in pool:
-                raise PoolException("%s is already in UniquePool %s." %
-                                    (thing, pool))
+        pools = thing.parents(clusto_drivers=[UniquePool])
+        if pools:
+            raise PoolException("%s is already in UniquePool(s) %s." %
+                                (thing, pools))
 
         Pool.insert(self, thing)
