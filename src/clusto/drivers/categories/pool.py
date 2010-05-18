@@ -62,5 +62,45 @@ class Pool(Driver):
                 pools.extend(Pool.get_pools(i, allPools=True))
 
         return pools
-            
-        
+
+class ExclusivePool(Pool):
+    def insert(self, thing):
+        """Insert the given Enity or Driver into this Entity.
+
+        Such that:
+
+        >>> A.insert(B)
+        >>> (B in A)
+        True
+
+        A given entity can only be inserted into an ExclusivePool if
+        it is in NO other pools.
+        """
+
+        pools = Pool.get_pools(thing):
+        if pools
+            raise PoolException("%s is already in pools %s, cannot insert "
+                                "exclusively." % (thing, pools))
+
+        Pool.insert(self, thing)
+
+class UniquePool(Pool):
+    def insert(self, thing):
+        """Insert the given Enity or Driver into this Entity.
+
+        Such that:
+
+        >>> A.insert(B)
+        >>> (B in A)
+        True
+
+        A given entity can only be in ONE UniquePool.
+        """
+
+        pools = get_entities(clusto_drivers=[UniquePool])
+        for pool in pools:
+            if thing in pool:
+                raise PoolException("%s is already in UniquePool %s." %
+                                    (thing, pool))
+
+        Pool.insert(self, thing)
