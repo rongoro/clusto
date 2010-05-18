@@ -64,6 +64,8 @@ class Pool(Driver):
         return pools
 
 class ExclusivePool(Pool):
+    _driver_name = "exclusive_pool"
+
     def insert(self, thing):
         """Insert the given Enity or Driver into this Entity.
 
@@ -85,6 +87,8 @@ class ExclusivePool(Pool):
         Pool.insert(self, thing)
 
 class UniquePool(Pool):
+    _driver_name = "unique_pool"
+
     def insert(self, thing):
         """Insert the given Enity or Driver into this Entity.
 
@@ -97,7 +101,7 @@ class UniquePool(Pool):
         A given entity can only be in ONE UniquePool.
         """
 
-        pools = thing.parents(clusto_drivers=[UniquePool])
+        pools = thing.parents(clusto_drivers=[self._driver_name])
         if pools:
             raise PoolException("%s is already in UniquePool(s) %s." %
                                 (thing, pools))
