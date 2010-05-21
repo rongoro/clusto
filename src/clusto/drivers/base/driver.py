@@ -77,7 +77,7 @@ class Driver(object):
         if isinstance(name_driver_entity, Driver):
             return name_driver_entity
         else:
-            return object.__new__(cls, name_driver_entity, **kwargs)
+            return object.__new__(cls)
 
     def __init__(self, name_driver_entity, **kwargs):
 
