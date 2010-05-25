@@ -158,6 +158,7 @@ class XenVirtualServer(BasicVirtualServer):
         domain = conn.lookupByName(self.name)
         if domain.create() != 0:
             raise DriverException('Unable to start domain %s' % self.name)
+        domain.setSchedulerParameters({'weight': self.attr_value(key='system', subkey='memory')})
 
     def vm_stop(self, force=False, conn=None):
         if not conn:
