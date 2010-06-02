@@ -138,7 +138,7 @@ def get_entities(names=(), clusto_types=(), clusto_drivers=(), attrs=()):
 
     return [Driver(entity) for entity in query.all()]
 
-def get_from_pools(pools, clusto_types=(), clusto_drivers=()):
+def get_from_pools(pools, clusto_types=(), clusto_drivers=(), search_children=True):
     """Get entitis that are in all the given pools
 
     parameters:
@@ -166,7 +166,7 @@ def get_from_pools(pools, clusto_types=(), clusto_drivers=()):
     for p in pls:
         contents = set(p.contents(clusto_types=clusto_types,
                                   clusto_drivers=clusto_drivers,
-                                  search_children=True))
+                                  search_children=search_children))
         resultsets.append(contents)
 
     return reduce(set.intersection, resultsets)

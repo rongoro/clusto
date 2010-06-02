@@ -686,7 +686,7 @@ class Driver(object):
         if additional_pools:
             parents.extend(additional_pools)
 
-        return [s for s in clusto.get_from_pools(parents, **kwargs) if s != self]
+        return [s for s in clusto.get_from_pools(parents, search_children=False, **kwargs) if s != self]
 
     @classmethod
     def get_by_attr(cls, *args, **kwargs):
