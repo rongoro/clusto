@@ -1,3 +1,9 @@
+clusto (0.5.28-1) unstable; urgency=low
+
+  * siblings optimization
+
+ -- Ron Gorodetzky <ron@digg.com>  Tue, 01 Jun 2010 23:12:28 -0700
+
 clusto (0.5.27-1) unstable; urgency=low
 
   * Use clusto.get on command line tools
