@@ -1,6 +1,7 @@
 from basicappliance import BasicAppliance
 
 class Netscaler(BasicAppliance):
+    _driver_name = 'netscaler'
     pass
 
 class Netscaler17000(Netscaler):
