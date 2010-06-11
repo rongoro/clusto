@@ -42,6 +42,8 @@ class XenVirtualServer(BasicVirtualServer):
             <memory></memory>
             <vcpu></vcpu>
             <os>
+                <type>hvm</type>
+                <loader>/usr/lib/xen-default/boot/hvmloader</loader>
                 <boot dev="hd" />
                 <boot dev="network" />
             </os>
