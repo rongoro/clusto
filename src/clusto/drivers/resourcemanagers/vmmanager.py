@@ -93,6 +93,12 @@ class VMManager(ResourceManager):
         
     def _has_capacity(self, host, vm):
 
+
+        # if the host was allocated to the vmmanager it is "reserved" and
+        # shouldn't get any more VMs assigned to it.
+        if self in self.owners(host):
+            return False
+        
         ## this is a very slow way to do this
         
         mem = host.attr_value('system', subkey='memory')

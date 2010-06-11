@@ -167,6 +167,23 @@ class VMManagerTest(testbase.ClustoTestBase):
 
         vmm.allocate(vs1, s3)
 
+    def testReservingResource(self):
+
+        s1 = clusto.get_by_name('s1')
+        s2 = clusto.get_by_name('s2')
+
+        vmm = clusto.get_by_name('vmm')
+
+        vs1 = BasicVirtualServer('vs1')
+        vs1.set_attr('system', subkey='memory', value=1000)
+        vs1.set_attr('system', subkey='disk', value=50)
+        vs1.set_attr('system', subkey='cpucount', value=2)
+
+        vmm.allocate(vmm, s1)
+
+        self.assertRaises(ResourceException, vmm.allocate, vs1, s1)
+        
+
 class EC2VMManagerTest(testbase.ClustoTestBase):
 
     def data(self):
