@@ -184,7 +184,14 @@ def get_from_pools(pools, clusto_types=(), clusto_drivers=(), search_children=Tr
     return reduce(set.intersection, resultsets)
 
 def get_by_name(name):
+    """Return the entity with the given name.
+
+    parameters:
+      name - string 
+    """
+
     name = u'%s' % name
+
     try:
         entity = Entity.query().filter_by(name=name).one()
 
