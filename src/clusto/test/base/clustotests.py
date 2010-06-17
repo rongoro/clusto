@@ -46,6 +46,19 @@ class TestClusto(testbase.ClustoTestBase):
 
         self.assertEqual(q.name, 'e1')
 
+    def testGetByNames(self):
+
+        names = ['e3','e1','e2']
+        entities = [clusto.get_by_name(x) for x in names]
+
+        self.assertEqual(entities, clusto.get_by_names(names))
+
+        self.assertEqual([clusto.get_by_name('e3'),
+                          None,
+                          clusto.get_by_name('e1')],
+                         clusto.get_by_names(['e3', 'shouldfail', 'e1']))
+
+
     def testSimpleRename(self):
 
         clusto.rename('e1', 'f1')

@@ -201,6 +201,27 @@ def get_by_name(name):
     except InvalidRequestError:
         raise LookupError(name + " does not exist.")
 
+
+def get_by_names(names):
+    """Return a list of entities matching the given list of names.
+
+    parameters:
+      name - list of strings
+    """
+
+    entities = Entity.query().filter(Entity.name.in_(names)).all()
+
+    retvals = [None for x in xrange(len(names))]
+
+    for entity in entities:
+        try:
+            retvals[names.index(entity.name)] = Driver(entity)
+        except:
+            pass
+
+    return retvals
+
+    
 get_by_attr = drivers.base.Driver.get_by_attr
 
 def get_or_create(name, driver):
