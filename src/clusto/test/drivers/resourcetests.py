@@ -85,3 +85,16 @@ class ResourceManagerTests(testbase.ClustoTestBase):
 
         rm.set_resource_attr(d,'bar', 'attr2', 2)
         self.assertEqual(rm.get_resource_attr_values(d, 'bar', 'attr2'), [2])
+
+    def testReserveResource(self):
+
+        rm = ResourceManager('test')
+        d = Driver('d')
+
+        rm.allocate(d, 'foo')
+
+        rm.allocate(rm, 'bar')
+        
+
+        self.assertRaises(ResourceException, rm.allocate, d, 'bar')
+        

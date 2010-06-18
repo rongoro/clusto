@@ -2,7 +2,7 @@
 import clusto
 from clusto.test import testbase
 
-from clusto.drivers import IPManager, BasicServer, ResourceTypeException
+from clusto.drivers import IPManager, BasicServer, ResourceTypeException, ResourceException
 
 import IPy
 
@@ -54,4 +54,13 @@ class IPManagerTest(testbase.ClustoTestBase):
 
         self.assertEqual(sorted(IPManager.get_ips(s1)),
                          sorted(['192.168.1.2', '10.0.128.2']))
+
+    def testReserveIP(self):
+        
+        ip1, ip2, s1 = map(clusto.get_by_name, ['a1', 'b1', 's1'])
+
+        ip2.allocate(ip2, '10.0.128.4')
+
+        self.assertRaises(ResourceException, ip2.allocate, s1, '10.0.128.4')
+
         
