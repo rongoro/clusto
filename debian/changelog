@@ -1,3 +1,15 @@
+clusto (0.5.29-1) unstable; urgency=low
+
+  [ Ron Gorodetzky ]
+  * add tests for reserving resources
+
+  [ Jorge A Gallegos ]
+  * Adding 'deallocate' command
+  * Patched list-pool so it doesn't barf when the content is a pool (or
+    any other object with no get_ips() method)
+
+ -- Jorge A Gallegos <kad@digg.com>  Mon, 28 Jun 2010 11:55:53 -0700
+
 clusto (0.5.28-1) unstable; urgency=low
 
   * siblings optimization

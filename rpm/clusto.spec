@@ -6,8 +6,8 @@
 %{!?_with_psycopg2: %{!?_without_psycopg2: %define _without_psycopg2 --without-psycopg2}}
 
 Name:		clusto
-Version:	0.5.27
-Release:	3%{?dist}
+Version:	0.5.29
+Release:	1%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -79,6 +79,12 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Mon Jun 28 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.29-1
+- add tests for reserving resources
+- Adding 'deallocate' command
+- Patched list-pool so it doesn't barf when the content is a pool (or
+  any other object with no get_ips() method)
+
 * Sat May 8 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.27-3
 - Use standard python macros
 
