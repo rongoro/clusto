@@ -40,7 +40,10 @@ def main():
                 print str(attr.value)
     else:
         for entity in entities:
-            ip = entity.get_ips()
+            try:
+                ip = entity.get_ips()
+            except AttributeError, ae:
+                ip = None
             if ip:
                 print ip[0]
             else:

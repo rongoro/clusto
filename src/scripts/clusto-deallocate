@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+
+import IPy
+from optparse import OptionParser
+import sys
+
+import clusto
+from clusto import IPManager
+from clusto import scripthelpers
+
+
+def get_host_list(hosts):
+    host_list = {}
+    for host in hosts:
+        try:
+#           Check if the provided argument is an IP address
+            ip = None
+            try:
+                ip = IPy.IP(host)
+            except ValueError:
+                pass
+            if ip:
+                host_obj = IPManager.get_devices(ip)[0]
+                print "%s >>> %s" % (host, host_obj.name)
+                host_list[host_obj.name] = host_obj
+            else:
+                host_list[host] = clusto.get_by_name(host)
+        except Exception, e:
+            print 'Could not find host "%s" (%s)' % (host, str(e))
+    return host_list
+
+def deallocate(host):
+    print 'Deallocating %s...' % host.name
+    pools = host.parents(clusto_types=[clusto.drivers.pool.Pool])
+#   Remove from pools
+    for pool in pools:
+        if pool.name != 'fai' and pool.name != 'unallocated':
+            print 'Removing "%s" from pool "%s"' % (host.name, pool.name)
+            pool.remove(host)
+
+def clean_attrs(host, preserve_attrs):
+#   Clean attributes
+    print 'Cleaning up attributes from "%s"' % host.name
+    attrs = set(sorted([x.key for x in host.attrs() if x.key not in preserve_attrs]))
+    for attr in attrs:
+        host.del_attrs(key=attr)
+
+def main():
+#   List of 'base' attributes
+    preserve_attrs = ['port-console-serial', 'port-nic-eth', 'ip', 'system', 'fai',
+        'port-pwr-nema-5', 'memory', 'disk', 'processor']
+    usage = '%prog [options] <host1> [<host2>...<hostN>]'
+    parser = OptionParser(usage=usage)
+    parser.add_option('-f', '--fai', dest='fai', action='store_true', default=False,
+        help='FAI after deallocating')
+    parser.add_option('--yeah-sure-why-not', dest='yes', action='store_true', default=False,
+        help='Do not prompt for a confirmation before (and if) FAI')
+    parser.add_option('-p', '--preserve-attr', dest='preserve',
+        help='Comma-separated list of attrs to preserve besides: %s' %
+        ','.join(preserve_attrs))
+    (options, args) = parser.parse_args()
+
+    if len(args) < 1:
+        parser.print_help()
+        return 1
+
+#   Add attributes to the preserve list if set
+    if options.preserve:
+        [ preserve_attrs.append(attr) for attr in options.preserve.split(',') if attr not in preserve_attrs ]
+
+#   Get the host list
+    host_list = get_host_list(args)
+
+    u = clusto.get_by_name('unallocated')
+    fai = clusto.get_by_name('fai')
+
+    for hostname, host in host_list.items():
+        if not isinstance(host, clusto.drivers.servers.BasicServer):
+            print 'Cannot deallocate "%s" because is not a server' % hostname
+            continue
+        deallocate(host)
+        clean_attrs(host, preserve_attrs)
+
+        if host not in u:
+            u.insert(host)
+            print 'Host "%s" is now in the "unallocated" pool' % hostname
+
+        if options.fai:
+            if not options.yes:
+                sys.stdout.write('Are you absolutely sure you want to FAI "%s" (yes/no)? ' % hostname)
+                sys.stdout.flush()
+                try:
+                    line = sys.stdin.readline().rstrip('\r\n')
+                except KeyboardInterrupt:
+                    line = False
+            else:
+                line = 'yes'
+
+            if line == 'yes':
+                print 'Server "%s" will be FAIed...' % hostname
+                fai.insert(host)
+                host.power_reboot(captcha=False)
+
+    print 'Done.'
+
+if __name__ == '__main__':
+    scripthelpers.init_script()
+    sys.exit(main())
+

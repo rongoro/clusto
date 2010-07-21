@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 import glob
 import os
 import sys
@@ -37,6 +37,7 @@ setup(name = "clusto",
                os.path.join(srcdir, 'scripts', 'clusto-tree'),
                os.path.join(srcdir, 'scripts', 'clusto-update-info'),
                os.path.join(srcdir, 'scripts', 'clusto-vm'),
+               os.path.join(srcdir, 'scripts', 'clusto-deallocate'),
                ],
       test_suite = "clusto.test.alltests.gettests",
       dependency_links=['http://www.secdev.org/projects/scapy/']
