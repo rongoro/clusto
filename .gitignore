@@ -5,3 +5,4 @@ dist
 src/clusto.egg-info
 doc/.build
 rpm/*.tar.gz
+env/
