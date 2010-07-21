@@ -7,7 +7,7 @@
 
 Name:		clusto
 Version:	0.5.29
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
