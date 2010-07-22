@@ -38,7 +38,7 @@ def create(options, args):
 
     vmman = clusto.get_by_name('xenmanager')
     if options.hypervisor:
-        vmman.allocate(vm, clusto.get(hypervisor), force=True)
+        vmman.allocate(vm, clusto.get(options.hypervisor)[0], force=True)
     else:
         vmman.allocate(vm)
 
