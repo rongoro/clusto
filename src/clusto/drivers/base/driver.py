@@ -13,6 +13,10 @@ from clusto.exceptions import *
 
 from clusto.drivers.base.clustodriver import *
 
+try:
+    import simplejson as json
+except:
+    import json
 
 class Driver(object):
     """Base Driver.
@@ -261,8 +265,10 @@ class Driver(object):
                 if isinstance(value, Driver):
                     value = value.entity.entity_id
                 query = query.filter_by(relation_id=value)
-
             else:
+                if typename == 'json':
+                    typename = 'string'
+                    value = json.dumps(value)
                 query = query.filter_by(**{typename+'_value':value})
 
         if number is not ():

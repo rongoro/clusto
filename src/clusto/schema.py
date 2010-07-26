@@ -23,6 +23,11 @@ import datetime
 import clusto
 from functools import wraps
 
+try:
+    import simplejson as json
+except:
+    import json
+
 
 __all__ = ['ATTR_TABLE', 'Attribute', 'and_', 'ENTITY_TABLE', 'Entity', 'func',
            'METADATA', 'not_', 'or_', 'SESSION', 'select', 'VERSION',
@@ -299,6 +304,8 @@ class Attribute(ProtectedObj):
         else:
             valtype = self.get_type(value)
 
+        if valtype == 'json':
+            valtype = "string"
         return valtype + "_value"
 
     @property
@@ -325,6 +332,8 @@ class Attribute(ProtectedObj):
             datatype = 'relation'
         elif hasattr(value, 'entity') and isinstance(value.entity, Entity):
             datatype = 'relation'
+        elif isinstance(value, (list, dict)):
+            datatype = 'json'
         else:
             datatype = 'string'
 
@@ -339,6 +348,8 @@ class Attribute(ProtectedObj):
             val = getattr(self, self.get_value_type())
             if self.datatype == 'int':
                 return int(val)
+            elif self.datatype == 'json':
+                return json.loads(val)
             else:
                 return val
 
@@ -348,6 +359,9 @@ class Attribute(ProtectedObj):
             self.datatype = self.get_type(value)
             if self.datatype == 'int':
                 value = int(value)
+            elif self.datatype == 'json':
+                value = json.dumps(value)
+                
         setattr(self, self.get_value_type(value), value)
 
 

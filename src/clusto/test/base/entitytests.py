@@ -150,6 +150,26 @@ class TestEntityAttributes(testbase.ClustoTestBase):
 
         self.assertEqual(q.value, 'thestring')
 
+    def testJSONAttribute(self):
+
+        e2 = Entity.query().filter_by(name='e2').one()
+
+        e2.add_attr(key="somejson", value=['foo', 'bar'])
+
+        clusto.flush()
+
+        q = Attribute.query().filter_by(entity=e2,
+                                        key='somejson').one()
+
+        self.assertEqual(q.value, ['foo', 'bar'])
+
+        e2.add_attr(key="otherjson", value={'foo':200, 'bar':'test'})
+
+        q = Attribute.query().filter_by(entity=e2,
+                                        key="otherjson").one()
+
+        self.assertEqual(q.value, {'foo':200, 'bar':'test'})
+
     def testIntAttribute(self):
 
         e4 = Entity('e4')
