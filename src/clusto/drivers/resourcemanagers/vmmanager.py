@@ -158,18 +158,6 @@ class VMManager(ResourceManager):
         return attr
     
 
-class EC2VMManager(VMManager):
-
-    _driver_name = "ec2vmmanager"
-
-    _properties = {'budget':None,
-                   'current_cost':None,
-                   'accountstuff':None} # i'd have to lookup again what ec2 actually needs
-
-    def allocator(self):
-        """allocate VMs on ec2 while keeping track of current costs and staying within the budget"""
-        pass
-
 class XenVMManager(VMManager):
     """Manage Xen Instances
 

@@ -140,6 +140,44 @@ If you already have IPManager and SimpleEntityNameManager instances setup, the c
  Created v1000
  $ clusto vm start v1000
 
+EC2 virtual machines
+~~~~~~~~~~~~~~~~~~~~
+ALPHA!
+
+EC2 support is in it's very early stages but works like this::
+
+ from clusto.drivers import EC2VirtualServer, EC2VMManager 
+
+ ec2manager = EC2VMManager("myec2", aws_access_key_id="...", aws_secret_access_key="...")
+
+ vserver = EC2VirtualServer("v01")
+ vserver.add_attr(key='aws', subkey='ec2_instance_type',value='m1.small')
+ vserver.add_attr(key='aws', subkey='ec2_region',value='eu-west-1')
+ vserver.add_attr(key='aws', subkey='ec2_ami',value='ami-cf4d67bb')
+ 
+
+ ec2manager.allocate(vserver)
+
+ vserver.get_state() # checks the instance state with EC2
+
+ vserver.get_ips() # gets the public and private IPs from EC2
+
+ vserver.set_attr(key='aws', subkey='ec2_allow_termination', value=False)
+
+ ec2manager.deallocate(vserver)
+ >>> EC2VMManagerException: Not Allowed to terminate v01.
+ 
+ vserver.set_attr(key='aws', subkey='ec2_allow_termination', value=True)
+
+ ec2manager.deallocate(vserver) # terminates the instance at EC2
+
+The EC2VMManager has stubs for budgeting which aren't fleshed out yet (to restrict $/hr spent).  There is also a helper function::
+
+ ec2manager.get_all_ec2_instance_resources() 
+
+That returns all the instance information for all regions as seen by EC2.  This might not be the greatest idea when you start to get a lot of instances.
+
+
 Pool types
 ~~~~~~~~~~
 Clusto currently supports three different types of "pools." Pools are used to group entities together and apply attributes to the groupings. The supported pool types are:
