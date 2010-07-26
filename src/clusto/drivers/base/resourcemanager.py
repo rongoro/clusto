@@ -55,6 +55,7 @@ class ResourceManager(Driver):
         """
         return (resource, number)
 
+
     def get_resource_number(self, thing, resource):
         """Get the number for a resource on a given entity."""
         
@@ -68,11 +69,13 @@ class ResourceManager(Driver):
             raise ResourceException("%s isn't assigned resource %s"
                                     % (thing.name, str(resource)))
 
+
     def get_resource_attr_values(self, thing, resource, key, number=True):
         """Get the value for the attrs on the resource assigned to a given entity matching the given key."""
         
         return [x.value for x in self.get_resource_attrs(thing, resource,
                                                          key, number)]
+
     
     def get_resource_attrs(self, thing, resource, key=(), number=True):
         """Get the Attributes for the attrs on the resource assigned to a given enttiy matching the given key."""
@@ -80,6 +83,7 @@ class ResourceManager(Driver):
         resource, number = self.ensure_type(resource, number, thing=thing)
         
         return thing.attrs(self._attr_name, number=number, subkey=key)
+
     
     def add_resource_attr(self, thing, resource, key, value, number=True):
         """Add an Attribute for the resource assigned to a given entity setting the given key and value"""
@@ -89,6 +93,7 @@ class ResourceManager(Driver):
         attr = thing.add_attr(self._attr_name, number=number, subkey=key, value=value)
         return attr
 
+
     def set_resource_attr(self, thing, resource, key, value, number=True):
         """Set an Attribute for the resource assigned to a given entity with the given key and value"""
         
@@ -97,14 +102,17 @@ class ResourceManager(Driver):
 
         return attr
 
+
     def del_resource_attr(self, thing, resource, key, value=(), number=True):
         """Delete an Attribute for the resource assigned to a given entity matching the given key and value"""
         
         resource, number = self.ensure_type(resource, number, thing=thing)
         thing.del_attrs(self._attr_name, number=number, subkey=key, value=value)
 
+
     def additional_attrs(self, thing, resource, number):
         pass
+
     
     def allocate(self, thing, resource=(), number=True, force=False):
         """allocates a resource element to the given thing.
@@ -164,6 +172,7 @@ class ResourceManager(Driver):
 
         return attr #resource
 
+
     def deallocate(self, thing, resource=(), number=True):
         """deallocates a resource from the given thing."""
 
@@ -185,6 +194,8 @@ class ResourceManager(Driver):
         except Exception, x:
             clusto.rollback_transaction()
             raise x
+
+
     def available(self, resource, number=True, thing=None):
         """return True if resource is available, False otherwise.
         """
@@ -205,6 +216,18 @@ class ResourceManager(Driver):
 
         return Driver.get_by_attr(self._attr_name, resource, number=number)
 
+
+    @classmethod
+    def get_resource_manager(cls, resource_attr):
+        """Return the resource manager for a given resource_attr"""
+
+        thing = Driver(resource_attr.entity)
+        
+        return thing.attr_value(key=resource_attr.key,
+                                subkey='manager',
+                                number=resource_attr.number)
+        
+
     @classmethod
     def resources(cls, thing):
         """return a list of resources from the resource manager that is
@@ -224,6 +247,7 @@ class ResourceManager(Driver):
 
 
         return res
+
 
     @property
     def count(self):
