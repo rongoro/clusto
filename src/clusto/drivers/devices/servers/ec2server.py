@@ -25,3 +25,9 @@ class EC2VirtualServer(BasicVirtualServer):
         """Get the instance state."""
         
         return self._instance.state
+
+    def console(self, *args, **kwargs):
+
+        console = self._instance.get_console_output()
+
+        return console.output
