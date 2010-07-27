@@ -155,6 +155,9 @@ class EC2VMManager(ResourceManager):
                                     merge_container_attrs=True)
 
 
+        security_groups = thing.attr_values(key='aws', subkey='ec2_security_group',
+                                            merge_container_attrs=True)
+        
         res = self.resources(thing)
         if len(res) > 1:
             raise ResourceException("%s is somehow already assigned more than one instance")
@@ -169,7 +172,8 @@ class EC2VMManager(ResourceManager):
             reservation = image.run(instance_type=instance_type,
                                     placement=placement,
                                     key_name=key_name,
-                                    user_data=user_data)
+                                    user_data=user_data,
+                                    security_groups=security_groups)
 
             i = reservation.instances[0]
         
