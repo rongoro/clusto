@@ -132,7 +132,7 @@ class EC2VMManager(ResourceManager):
 
 
         region = thing.attr_value(key='aws', subkey='ec2_region',
-                                  merge_container_attrs=True) or 'us-east-1'
+                                  merge_container_attrs=True) or 'default:us-east-1'
 
         instance_type = thing.attr_value(key='aws', subkey='ec2_instance_type',
                                          merge_container_attrs=True)
