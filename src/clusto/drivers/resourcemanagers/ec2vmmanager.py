@@ -179,7 +179,8 @@ class EC2VMManager(ResourceManager):
     def deallocate(self, thing, resource=(), number=True):
         """deallocates a resource from the given thing."""
 
-        if thing.attr_value(key='aws', subkey='ec2_allow_termination') == False:
+        if thing.attr_value(key='aws', subkey='ec2_allow_termination',
+                            merge_container_attrs=True) == False:
             raise EC2VMManagerException("Not Allowed to terminate %s." % thing.name)
         
         if not resource:
