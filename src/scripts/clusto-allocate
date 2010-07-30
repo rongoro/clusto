@@ -17,11 +17,13 @@ def sort_servers(servers):
         mem = server.attr_value(key='system', subkey='memory', default=None)
         cores = server.attr_value(key='system', subkey='cpucount',
                                   default=None)
-        disk = server.attr_value(key='system', subkey='disk', default=None)
-        tuples.append((server, mem, cores, disk))
+        disk_size = server.attr_value(key='system', subkey='disk', default=None)
+        disk_num = len(server.attrs(key='disk', subkey='size'))
+        tuples.append((server, mem, cores, disk_size, disk_num))
     tuples = sorted(tuples, key=itemgetter(3))
     tuples = sorted(tuples, key=itemgetter(2))
     tuples = sorted(tuples, key=itemgetter(1))
+    tuples = sorted(tuples, key=itemgetter(4))
     return [item[0] for item in tuples]
 
 
