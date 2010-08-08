@@ -64,7 +64,9 @@ class EC2VMManager(ResourceManager):
         if not region or region == 'us-east-1':
             return c
         else:
-            return boto.ec2.connect_to_region(region)
+            return boto.ec2.connect_to_region(region,
+                                              aws_access_key_id=str(self.aws_access_key_id),
+                                              aws_secret_access_key=str(self.aws_secret_access_key))
             
 
     def _instance_to_dict(self, instance):
