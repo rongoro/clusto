@@ -121,6 +121,14 @@ class EC2VMManager(ResourceManager):
         return instance_resources
                     
         
+    def additional_attrs(self, thing, resource, number):
+
+        for name,val in resource.items():
+            self.set_resource_attr(thing,
+                                   resource,
+                                   key=str(name),
+                                   value=str(val))
+
     def allocator(self, thing):
         """Allocate VMs on ec2 while keeping track of current costs and staying within the budget
 
