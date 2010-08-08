@@ -124,6 +124,7 @@ class EC2VMManager(ResourceManager):
         for name,val in resource.items():
             self.set_resource_attr(thing,
                                    resource,
+                                   number=number,
                                    key=str(name),
                                    value=str(val))
 
