@@ -61,7 +61,7 @@ class EC2VMManager(ResourceManager):
         c = boto.connect_ec2(aws_access_key_id=str(self.aws_access_key_id),
                              aws_secret_access_key=str(self.aws_secret_access_key))
 
-        if not region or region == 'default:us-east-1':
+        if not region or region == 'us-east-1':
             return c
         else:
             return boto.ec2.connect_to_region(region)
@@ -69,10 +69,7 @@ class EC2VMManager(ResourceManager):
 
     def _instance_to_dict(self, instance):
 
-        if instance.region.endpoint == 'ec2.amazonaws.com':
-            placement = 'default:' + instance.placement
-        else:
-            placement = instance.placement
+        placement = instance.placement
             
         d= {'placement':placement,
             'instance_id':instance.id}
@@ -106,7 +103,6 @@ class EC2VMManager(ResourceManager):
         instance_resources = []
 
         regions = [r.name for r in self._ec2_connection().get_all_regions()]
-        regions.append('default:us-east-1')
         
         for region in regions:
 
@@ -140,7 +136,7 @@ class EC2VMManager(ResourceManager):
 
 
         region = thing.attr_value(key='aws', subkey='ec2_region',
-                                  merge_container_attrs=True) or 'default:us-east-1'
+                                  merge_container_attrs=True) or 'us-east-1'
 
         instance_type = thing.attr_value(key='aws', subkey='ec2_instance_type',
                                          merge_container_attrs=True)
