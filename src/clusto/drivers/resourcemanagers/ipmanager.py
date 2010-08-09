@@ -22,6 +22,15 @@ class IPManager(ResourceManager):
     _attr_name = "ip"
 
     __int_ip_const = 2147483648
+
+
+    @classmethod
+    def _ipy_to_int(cls, ipy):
+        return int(ipy.int() - cls.__int_ip_const)
+
+    @classmethod
+    def _int_to_ipy(cls, num):
+        return IPy.IP(num + cls.__int_ip_const)
     
     @property
     def ipy(self):
@@ -38,7 +47,7 @@ class IPManager(ResourceManager):
 
         try:
             if isinstance(resource, int):
-                ip = IPy.IP(resource+self.__int_ip_const)
+                ip = self._int_to_ipy(resource)
             else:
                 ip = IPy.IP(resource)
         except ValueError:
@@ -50,14 +59,14 @@ class IPManager(ResourceManager):
                                         % (str(ip), self.baseip, self.netmask))
 
 
-        return (int(ip.int()-self.__int_ip_const), number)
+        return (self._ipy_to_int(ip), number)
 
 
     def additional_attrs(self, thing, resource, number):
 
         resource, number = self.ensure_type(resource, number)
 
-        thing.add_attr(self._attr_name, number=number, subkey='ipstring', value=str(IPy.IP(resource+self.__int_ip_const)))
+        thing.add_attr(self._attr_name, number=number, subkey='ipstring', value=str(self._int_to_ipy(resource)))
         
                      
     def allocator(self, thing=None):
@@ -138,7 +147,7 @@ class IPManager(ResourceManager):
     @classmethod
     def get_ips(cls, device):
 
-        ret = [str(IPy.IP(x.value+cls.__int_ip_const))
+        ret = [str(cls._int_to_ipy(x.value))
                for x in cls.resources(device)]
 
         return ret
