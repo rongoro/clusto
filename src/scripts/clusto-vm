@@ -37,7 +37,10 @@ def create(options, args):
     ipman.allocate(vm)
 
     vmman = clusto.get_by_name('xenmanager')
-    vmman.allocate(vm)
+    if options.hypervisor:
+        vmman.allocate(vm, clusto.get(hypervisor), force=True)
+    else:
+        vmman.allocate(vm)
 
     # Generate a MAC based on IP. Serious voodoo
     intip = IP(vm.get_ips()[0]).int()
@@ -77,6 +80,7 @@ def delete(server):
 
 def main():
     parser = OptionParser(usage='%prog <action> [options]\nActions: create, delete, start, stop, reboot, list, console')
+    parser.add_option('-f', '--hypervisor', dest='hypervisor', help='If creating a VM, force it to be allocated on the given hypervisor')
     parser.add_option('-d', '--disk', dest='disk', type='int', help='Disk size in GB (default: 10)', default=10)
     parser.add_option('-m', '--memory', dest='memory', type='int', help='Memory size in MB (default: 1024)', default=1024)
     parser.add_option('-s', '--swap', dest='swap', type='int', help='Swap size in MB', default=512)
