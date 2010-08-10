@@ -19,7 +19,7 @@ class BasicServer(IPMixin, PortMixin, Device):
 
 
 
-class BasicVirtualServer(BasicServer):
+class BasicVirtualServer(BasicServer, IPMixin):
 
     _clusto_type = "virtualserver"
     _driver_name = "basicvirtualserver"
