@@ -14,6 +14,7 @@ class IPManager(ResourceManager):
 
 
     _driver_name="ipmanager"
+    _clusto_type="ipmanager"
 
     _properties = {'gateway': None,
                    'netmask': '255.255.255.255',
@@ -21,16 +22,16 @@ class IPManager(ResourceManager):
 
     _attr_name = "ip"
 
-    __int_ip_const = 2147483648
+    _int_ip_const = 2147483648
 
 
     @classmethod
     def _ipy_to_int(cls, ipy):
-        return int(ipy.int() - cls.__int_ip_const)
+        return int(ipy.int() - cls._int_ip_const)
 
     @classmethod
     def _int_to_ipy(cls, num):
-        return IPy.IP(num + cls.__int_ip_const)
+        return IPy.IP(num + cls._int_ip_const)
     
     @property
     def ipy(self):
@@ -78,8 +79,8 @@ class IPManager(ResourceManager):
         lastip = self.attr_query('_lastip')
                 
         if not lastip:
-            # I subtract self.__int_ip_const to keep in int range
-            startip=int(self.ipy.net().int() + 1) - self.__int_ip_const 
+            # I subtract self._int_ip_const to keep in int range
+            startip=int(self.ipy.net().int() + 1) - self._int_ip_const 
         else:
             startip = lastip[0].value
 
@@ -88,10 +89,10 @@ class IPManager(ResourceManager):
         ## generate new ips the slow naive way
         nextip = int(startip)
         if self.gateway:
-            gateway = IPy.IP(self.gateway).int() - self.__int_ip_const
+            gateway = IPy.IP(self.gateway).int() - self._int_ip_const
         else:
             gateway = None
-        endip = self.ipy.broadcast().int() - self.__int_ip_const
+        endip = self.ipy.broadcast().int() - self._int_ip_const
 
         for i in range(2):
             while nextip < endip:

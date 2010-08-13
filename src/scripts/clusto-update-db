@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+"""
+This script is for upgrading a clusto db to a new version
+"""
+
+import sys
+from optparse import OptionParser
+
+parser = OptionParser(usage="usage: %prog")
+(options, args) = parser.parse_args(sys.argv)
+
+
+import clusto.scripthelpers
+
+config, logger = clusto.scripthelpers.init_script()
+
+from clusto import *
+
+
+
+def main(argv):
+    meta = clusto.get_by_name('clustometa')
+
+    if meta.schemaversion == 3:
+        update_ipmanager_type()
+
+
+
+def update_ipmanager_type():
+
+    try:
+        clusto.begin_transaction()
+
+        ipmanagers = clusto.get_entities(clusto_drivers=['ipmanager'])
+
+        for ipman in ipmanagers:
+            clusto.change_driver(ipman.name, ipman.__class__)
+
+        meta = clusto.get_by_name('clustometa')
+        meta.schemaversion = 4
+        
+        clusto.commit()
+    except Exception, x:
+        clusto.rollback_transaction()
+        raise x
+    
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
