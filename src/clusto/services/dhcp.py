@@ -85,7 +85,7 @@ class DHCPResponse(object):
         bootp_options = {
             'op': 2,
             'xid': self.request.packet.xid,
-            'ciaddr': self.offerip,
+            'ciaddr': '0.0.0.0',
             'yiaddr': self.offerip,
             'chaddr': self.request.packet.chaddr,
         }
