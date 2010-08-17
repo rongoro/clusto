@@ -17,11 +17,14 @@ def sort_servers(servers):
         mem = server.attr_value(key='system', subkey='memory', default=None)
         cores = server.attr_value(key='system', subkey='cpucount',
                                   default=None)
-        disk = server.attr_value(key='system', subkey='disk', default=None)
-        tuples.append((server, mem, cores, disk))
-    tuples = sorted(tuples, key=itemgetter(3))
-    tuples = sorted(tuples, key=itemgetter(2))
-    tuples = sorted(tuples, key=itemgetter(1))
+        disk_size = server.attr_value(key='system', subkey='disk', default=None)
+        disk_num = len(server.attrs(key='disk', subkey='size'))
+        tuples.append((server, mem, cores, disk_size, disk_num))
+
+    # do a single sort based on a four tuple as key!
+    # tuple column order determines sort priority...
+    tuples = sorted(tuples, key=lambda t:(t[3],t[2],t[1],t[4]))
+
     return [item[0] for item in tuples]
 
 
