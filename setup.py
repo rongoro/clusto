@@ -17,6 +17,8 @@ setup(name = "clusto",
                           'IPython',
                           'PyYAML',
                           'python-memcached',
+                          'mako',
+                          'boto'
                           ],
       zip_safe=False,
       package_dir = {'':'src'},
