@@ -3,6 +3,7 @@ from clusto.exceptions import ResourceException
 
 
 import boto
+from mako.template import Template
 
 class EC2VMManagerException(ResourceException):
     pass
@@ -128,6 +129,17 @@ class EC2VMManager(ResourceManager):
                                    key=str(name),
                                    value=str(val))
 
+    def _build_user_data(self, thing):
+
+        udata = thing.attr_value(key='aws', subkey='ec2_user_data',
+                                 merge_container_attrs=True)
+
+        if udata:
+            template = Template(udata)
+            return template.render(clusto={'name':thing.name})
+        else:
+            return None
+
     def allocator(self, thing):
         """Allocate VMs on ec2 while keeping track of current costs and staying within the budget
 
@@ -156,8 +168,9 @@ class EC2VMManager(ResourceManager):
         
         placement = thing.attr_value(key='aws', subkey='ec2_placement',
                                      merge_container_attrs=True)
-        user_data = thing.attr_value(key='aws', subkey='ec2_user_data',
-                                     merge_container_attrs=True)
+
+        user_data = self._build_user_data(thing)
+        
         key_name = thing.attr_value(key='aws', subkey='ec2_key_name',
                                     merge_container_attrs=True)
 
