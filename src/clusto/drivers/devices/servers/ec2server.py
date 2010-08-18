@@ -1,8 +1,11 @@
 
+from clusto.drivers.devices.common import IPMixin
 from clusto.drivers.devices.servers import BasicVirtualServer
 from clusto.drivers.resourcemanagers.ec2vmmanager import EC2VMManager
 
-class EC2VirtualServer(BasicVirtualServer):
+import time
+
+class EC2VirtualServer(BasicVirtualServer, IPMixin):
     _driver_name = "ec2virtualserver"
 
     _port_meta = {}
@@ -16,11 +19,6 @@ class EC2VirtualServer(BasicVirtualServer):
         instance = manager._get_instance_from_resource(res.value)
         return instance
     
-    def get_ips(self):
-        """Get the IPs for this EC2 server."""
-        
-        return [self._instance.private_ip_address, self._instance.ip_address]
-
     def get_state(self):
         """Get the instance state."""
         
@@ -31,3 +29,29 @@ class EC2VirtualServer(BasicVirtualServer):
         console = self._instance.get_console_output()
 
         return console.output
+
+    
+    def update_metadata(self, *args, **kwargs):
+
+        for i in range(10):
+
+            state = self.get_state()
+
+
+            if state == 'running':
+                self.clear_metadata()
+                self.bind_ip_to_osport(self._instance.private_ip_address,
+                                       'nic-eth0')
+
+                self.bind_ip_to_osport(self._instance.ip_address, 'ext-eth0')
+                break
+            
+            if not kwargs.get('wait', True):
+                break
+
+            time.sleep(2)
+
+    def clear_metadata(self, *args, **kwargs):
+
+        self.del_attrs('ip')
+        
