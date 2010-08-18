@@ -196,7 +196,8 @@ class EC2VMManager(ResourceManager):
         
         if not resource:
             for resource in self.resources(thing):
-                self._stop_instance(resource.value)        
+                self._stop_instance(resource.value)
+                thing.clear_metadata()
                 super(EC2VMManager, self).deallocate(thing, resource.value,
                                                      number)
         else:
