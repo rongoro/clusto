@@ -477,6 +477,8 @@ class Driver(object):
         vals = self.attr_values(*args, **kwargs)
 
         if vals:
+            if kwargs.get('merge_container_attrs', False):
+                return vals[0]
             if len(vals) != 1:
                 raise DriverException("args match more than one value")
             return vals[0]
