@@ -1,4 +1,4 @@
-
+import clusto
 from clusto.drivers.resourcemanagers import IPManager
 from clusto.drivers.devices import EC2VirtualServer
 from clusto.exceptions import ResourceException, ResourceTypeException
@@ -96,21 +96,28 @@ class EC2IPManager(IPManager):
         conn = self._ec2_connection()
 
         ips = set()
+
         for region in conn.get_all_regions():
             conn = self._ec2_connection(region.name)
             for address in conn.get_all_addresses():
                 ips.add((region.name,
                          self._ipy_to_int(IPy.IP(address.public_ip))))
 
-        reserved_ips = set((a.subkey, a.value)
-                           for a in self.attrs(key='reserved_ip'))
-        
-        for region, ip in reserved_ips.difference(ips):
-            self.del_attrs(key='reserved_ip', subkey=region, value=ip)
+        try:
+            clusto.begin_transaction()
+            reserved_ips = set((a.subkey, a.value)
+                               for a in self.attrs(key='reserved_ip'))
 
-        for region, ip in ips.difference(reserved_ips):
-                self.reserve_ip(region, ip)
 
+            for region, ip in reserved_ips.difference(ips):
+                self.del_attrs(key='reserved_ip', subkey=region, value=ip)
+
+            for region, ip in ips.difference(reserved_ips):
+                self.reserve_ip(region, self._int_to_ipy(ip))
+            clusto.commit()
+        except Exception, x:
+            clusto.rollback_transaction()
+            raise x
                 
     def get_instance_ips(self, vm):
         """Get the IPs for this EC2 server."""
@@ -118,19 +125,28 @@ class EC2IPManager(IPManager):
         return [vm._instance.private_ip_address, vm._instance.ip_address]
 
 
-    def allocator(self, ec2vm=None):
+    def allocator(self, ec2vm):
         """allocate IPs from this manager"""
 
-        if not ec2vm:
-            
         if ec2vm and ec2vm._driver_name != EC2VirtualServer._driver_name:
             raise ResourceException("%s is not a EC2 Virtual Server" % ec2vm.name)
+
         ec2vm_state = ec2vm.get_state() 
+
         if ec2vm and ec2vm_state != 'running':
             raise ResourceNotAvailableException("%s is not a running vm" % ec2vm.name)
         elif ec2vm and ec2vm_state == 'running':
             
-            
+            placement = ec2vm.attr_value('ec2vmmanager', subkey='placement')
+            region = placement[:-1]
+
+            for ip in self.attr_values(key='reserved_ip', subkey=region):
+                if self.available(ip):
+                    return self.ensure_type(ip, True)
             
         raise ResourceNotAvailableException("out of available ips.")
 
+    def allocate(self, thing, resource=(), number=True, force=False):
+        attr = super(EC2IPManager, self).allocate(thing, resource, number, force)
+        thing._instance.use_ip(str(self._int_to_ipy(attr.value)))
+        thing.update_metadata()
