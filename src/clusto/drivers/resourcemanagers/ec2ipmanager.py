@@ -146,7 +146,14 @@ class EC2IPManager(IPManager):
             
         raise ResourceNotAvailableException("out of available ips.")
 
+    def post_automatic_allocation(self, thing, resource, number):
+        thing._instance.use_ip(str(self._int_to_ipy(resource)))
+
+    def post_allocation(self, thing, resource, number):
+
+        ips = thing.get_ips()
+        if str(self._int_to_ipy(resource)) not in ips:
+            thing.update_metadata()
+
     def allocate(self, thing, resource=(), number=True, force=False):
         attr = super(EC2IPManager, self).allocate(thing, resource, number, force)
-        thing._instance.use_ip(str(self._int_to_ipy(attr.value)))
-        thing.update_metadata()
