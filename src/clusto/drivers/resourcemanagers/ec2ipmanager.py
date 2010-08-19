@@ -54,22 +54,22 @@ class EC2IPManager(IPManager):
 
         try:
             if isinstance(resource, int):
-                ip = IPy.IP(resource+self.__int_ip_const)
+                ip = self._int_to_ipy(resource)
             else:
                 ip = IPy.IP(resource)
         except ValueError:
             raise ResourceTypeException("%s is not a valid ip."
                                         % resource)
 
-        if not any(map(lambda x: operator.contains(x, ip), _ip_range_list)):
-            raise ResourceTypeException("%s is not a valid ip." % resource)
+        if not any(map(lambda x: operator.contains(x, ip), self._ip_range_list)):
+            raise ResourceTypeException("%s is not in a valid ip range." % str(ip))
 
-        return (int(ip.int()-self.__int_ip_const), number)
+        return (int(ip.int()-self._int_ip_const), number)
         
 
     def reserve_ip(self, region='us-west-1', ip=None):
         """Reserve an ip from ec2, or add a previously reserved ip"""
-
+        
         conn = self._ec2_connection(region)
         if not ip:
             address = conn.allocate_address()
@@ -77,8 +77,9 @@ class EC2IPManager(IPManager):
         else:
             ip = IPy.IP(ip)
 
-            a = self.add_attr(key='reserved_ip', subkey=region,
-                              value=self._ipy_to_int(ip))
+        a = self.add_attr(key='reserved_ip', subkey=region,
+                          value=self._ipy_to_int(ip))
+        return a
 
 
     def reserved_ips(self):
