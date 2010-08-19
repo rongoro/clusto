@@ -1,7 +1,7 @@
 
 from clusto.drivers.resourcemanagers import IPManager
 from clusto.drivers.devices import EC2VirtualServer
-from clusto.exceptions import ResourceException
+from clusto.exceptions import ResourceException, ResourceTypeException
 
 
 import operator
