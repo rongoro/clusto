@@ -180,9 +180,9 @@ class ResourceManager(Driver):
             raise x
 
         if auto_allocated:
-            self.post_automatic_allocation(thing, resource, attr.number)
+            self.post_automatic_allocation(thing, resource, number)
 
-        self.post_allocation(thing, resource, attr.number)
+        self.post_allocation(thing, resource, number)
             
         return attr #resource
 
