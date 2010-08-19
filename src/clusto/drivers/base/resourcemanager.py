@@ -113,6 +113,14 @@ class ResourceManager(Driver):
     def additional_attrs(self, thing, resource, number):
         pass
 
+
+    def post_automatic_allocation(self, thing, resource, number):
+        pass
+
+
+    def post_allocation(self, thing, resource, number):
+        pass
+
     
     def allocate(self, thing, resource=(), number=True, force=False):
         """allocates a resource element to the given thing.
@@ -135,8 +143,9 @@ class ResourceManager(Driver):
             if resource is ():
                 # allocate a new resource
                 resource, number = self.allocator(thing)
-
+                auto_allocated = True
             else:
+                auto_allocated = False
                 resource, number = self.ensure_type(resource, number, thing)
                 if not force and not self.available(resource, number, thing):
                     raise ResourceException("Requested resource is not available.")
@@ -170,6 +179,11 @@ class ResourceManager(Driver):
             clusto.rollback_transaction()
             raise x
 
+        if auto_allocated:
+            self.post_automatic_allocation(thing, resource, attr.number)
+
+        self.post_allocation(thing, resource, attr.number)
+            
         return attr #resource
 
 
