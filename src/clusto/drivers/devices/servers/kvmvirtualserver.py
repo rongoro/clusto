@@ -1,5 +1,6 @@
 from traceback import format_exc
 from urlparse import urlparse
+from telnetlib import Telnet
 import httplib
 import sys
 
@@ -10,6 +11,7 @@ except ImportError:
 
 from basicserver import BasicVirtualServer
 from clusto.exceptions import DriverException
+import clusto
 
 class KVMVirtualServer(BasicVirtualServer):
     _driver_name = "kvmvirtualserver"
@@ -31,8 +33,8 @@ class KVMVirtualServer(BasicVirtualServer):
         if body:
             body = json.dumps(body, indent=2, sort_keys=True)
 
-        conn.request(method, 'http://%s:3000%s' % (host, endpoint), body)
-        response = conn.get_response()
+        conn.request(method, endpoint, body)
+        response = conn.getresponse()
         return (response.status, response.read())
 
     def kvm_create(self, options):
@@ -62,7 +64,7 @@ class KVMVirtualServer(BasicVirtualServer):
             sys.stderr.write(format_exc() + '\n')
             clusto.rollback_transaction()
 
-    def kvm_update(self):
+    def kvm_update(self, options):
         attr = dict([(x.subkey, x.value) for x in self.attrs(key='system')])
 
         status, response = self._request('PUT', '/api/1/%s' % self.name, {
@@ -75,30 +77,34 @@ class KVMVirtualServer(BasicVirtualServer):
             raise DriverException(response)
         #response = json.loads(response)
 
-    def kvm_delete(self):
+    def kvm_delete(self, options):
         status, response = self._request('DELETE', '/api/1/%s' % self.name)
         if status != 200:
             raise DriverException(response)
 
-    def kvm_status(self):
+    def kvm_status(self, options):
         status, response = self._request('GET', '/api/1/%s' % self.name)
         if status != 200:
             raise DriverException(response)
         response = json.loads(response)
-        return response['status']
+        return response['state']
 
-    def kvm_start(self):
+    def kvm_start(self, options):
         status, response = self._request('POST', '/api/1/%s/start' % self.name)
         if status != 200:
             raise DriverException(response)
         response = json.loads(response)
-        if response['status'] != 'RUNNING':
+        if response['state'] != 'RUNNING':
             raise DriverException('VM is not in the RUNNING state after starting')
 
-    def kvm_stop(self):
+    def kvm_stop(self, options):
         status, response = self._request('POST', '/api/1/%s/stop' % self.name)
         if status != 200:
             raise DriverException(response)
         response = json.loads(response)
-        if response['status'] != 'STOPPED':
+        if response['state'] != 'STOPPED':
             raise DriverException('VM is not in the STOPPED state after stopping')
+
+    def kvm_console(self, options):
+        client = Telnet(self.get_hypervisor().get_ips()[0], self.attr_value(key='kvm', subkey='console'))
+        client.interact()
