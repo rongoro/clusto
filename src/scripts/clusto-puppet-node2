@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+from clusto.scripthelpers import init_script
+import clusto
+import yaml
+
+import sys
+
+def lookup(name):
+    try:
+        server = clusto.get_by_name(name)
+        return server
+    except LookupError:
+        try:
+            server = clusto.get_by_name(name.split('.', 1)[0])
+            return server
+        except LookupError:
+            return False
+
+def main():
+    if len(sys.argv) < 2:
+        return -1
+
+    server = lookup(sys.argv[1])
+    if not server:
+        return -1
+
+    result = {
+        'classes': [],
+        'parameters': {},
+    }
+
+    disabled = False
+
+    for attr in server.attrs(merge_container_attrs=True):
+        key = str(attr.key)        
+        subkey = (attr.subkey != None) and str(attr.subkey) or None
+
+        if isinstance(attr.value, int):
+            value = int(attr.value)
+        else:
+            value = str(attr.value)
+            
+        if subkey == 'disabled' and value:
+            disabled = True
+            break
+
+        if key == 'puppet':
+            if subkey == 'environment' and not 'environment' in result:
+                result['environment'] = value
+
+            if subkey == 'class':
+                if value not in result['classes']:
+                    result['classes'].append(value)
+                continue
+
+            if subkey not in result['parameters']:
+                resutl['parameters'][subkey] = value
+
+            continue
+
+        paramname = '%s__%s' % ('clusto', key)
+        if subkey:
+            paramname = paramname + '__' + subkey
+
+        if paramname not in result['parameters']:            
+            result['parameters'][paramname] = value
+
+    result['parameters']['clustopools'] = [str(p.name) for p in server.parents(clusto_types=['pool'])]
+        
+    if disabled:
+        result['classes'] = []
+        result['parameters'] = {}
+
+    if not [x for x in result.values() if x]:
+        return -1
+
+    yaml.dump(result, sys.stdout, default_flow_style=False, explicit_start=True, indent=2)
+
+if __name__ == '__main__':
+    init_script()
+    sys.exit(main())
