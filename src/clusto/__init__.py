@@ -223,11 +223,11 @@ def get_by_names(names):
     
 get_by_attr = drivers.base.Driver.get_by_attr
 
-def get_or_create(name, driver):
+def get_or_create(name, driver, **kwargs):
     try:
         obj = get_by_name(name)
     except LookupError:
-        obj = driver(name)
+        obj = driver(name, **kwargs)
         logging.info('Created %s' % obj)
     return obj
 
