@@ -31,6 +31,7 @@ Requires:	ipython
 Requires:	libvirt-python
 Requires:   python-IPy
 Requires:   scapy >= 2.0
+Requires:   PyYAML
 %{?_with_mysql:Requires: MySQL-python}
 %{?_with_psycopg2:Requires: python-psycopg2}
 
