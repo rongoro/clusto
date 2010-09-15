@@ -410,7 +410,11 @@ class Driver(object):
         else:
             merge_container_attrs = False
 
-        if clusto.SESSION.memcache:
+        ignore_memcache = False
+        if 'ignore_memcache' in kwargs:
+            ignore_memcache = kwargs.pop('ignore_memcache')
+
+        if clusto.SESSION.memcache and not ignore_memcache:
             logging.debug('Pulling info from memcache when possible for %s' % self.name)
             k = None
             if 'key' in kwargs:
@@ -441,6 +445,7 @@ class Driver(object):
 
         if merge_container_attrs:
             kwargs['merge_container_attrs'] = merge_container_attrs
+            kwargs['ignore_memcache'] = ignore_memcache
             for parent in self.parents():
                 attrs.extend(parent.attrs(*args,  **kwargs))
 
