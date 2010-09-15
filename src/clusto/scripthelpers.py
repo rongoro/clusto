@@ -94,7 +94,7 @@ def get_clusto_config(filename=None):
         if not os.path.exists(os.path.realpath(filename)):
             raise CmdLineError("Config file %s doesn't exist." % filename)
         
-    config = SafeConfigParser()    
+    config = SafeConfigParser()
     config.read([filename])
 
     if not config.has_section('clusto'):
@@ -119,7 +119,7 @@ def init_script(name=os.path.basename(sys.argv[0]), configfile=None,
     Uses get_clusto_config and setup_logging
     """
     config = get_clusto_config(filename=configfile)
-    clusto.connect(config.get('clusto', 'dsn'))
+    clusto.connect(config=config)
 
     if initializedb:
         clusto.init_clusto()

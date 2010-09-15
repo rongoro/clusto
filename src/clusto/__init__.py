@@ -16,17 +16,25 @@ import re
 driverlist = DRIVERLIST
 typelist = TYPELIST
 
-def connect(dsn, echo=False):
+def connect(config, echo=False):
     """Connect to a given Clusto datastore.
 
-    Accepts a dsn string.
+    Accepts a config object with (at least) a DSN string
 
     e.g. mysql://user:pass@example.com/clustodb
     e.g. sqlite:///somefile.db
 
-    @param dsn: the clusto database URI
+    @param config: the config object
     """
-    SESSION.configure(bind=create_engine(dsn, echo=echo))
+    SESSION.configure(bind=create_engine(config.get('clusto', 'dsn'), echo=echo))
+    try:
+        memcache_servers = config.get('clusto', 'memcached').split(',')
+#       Memcache should only be imported if we're actually using it, yes?
+        import memcache
+        logging.info('Memcache server list: %s' % config.get('clusto', 'memcached'))
+        SESSION.memcache = memcache.Client(memcache_servers, debug=0)
+    except:
+        SESSION.memcache = None
 
 def checkDBcompatibility(dbver):
 
