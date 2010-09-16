@@ -6,8 +6,8 @@
 %{!?_with_psycopg2: %{!?_without_psycopg2: %define _without_psycopg2 --without-psycopg2}}
 
 Name:		clusto
-Version:	0.5.29
-Release:	2%{?dist}
+Version:	0.5.31
+Release:	1%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -79,6 +79,9 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Thu Sep 16 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-1
+- Initial memcache support
+
 * Mon Jul 12 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.29-2
 - Fixed %files section
 
