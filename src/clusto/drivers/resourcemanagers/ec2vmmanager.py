@@ -136,7 +136,10 @@ class EC2VMManager(ResourceManager):
 
         if udata:
             template = Template(udata)
-            return template.render(clusto={'name':thing.name})
+            return template.render(clusto={'name':thing.name,
+                                           'region':thing.attr_value(key='aws',
+                                                                     subkey='ec2_region',
+                                                                     merge_container_attrs=True)})
         else:
             return None
 
