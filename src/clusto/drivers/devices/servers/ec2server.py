@@ -33,7 +33,8 @@ class EC2VirtualServer(BasicVirtualServer, IPMixin):
     
     def update_metadata(self, *args, **kwargs):
 
-        for i in range(10):
+        wait = kwargs.get('wait', False)
+        while wait:
 
             state = self.get_state()
 
@@ -46,9 +47,6 @@ class EC2VirtualServer(BasicVirtualServer, IPMixin):
                 self.bind_ip_to_osport(self._instance.ip_address, 'ext-eth0')
                 break
             
-            if not kwargs.get('wait', True):
-                break
-
             time.sleep(2)
 
     def clear_metadata(self, *args, **kwargs):
