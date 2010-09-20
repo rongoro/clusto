@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+from optparse import OptionParser
+import sys
+
+import clusto
+from clusto import scripthelpers
+
+
+def get_orphans(dc=None):
+    server_list = []
+    if dc:
+        dc = clusto.get_by_name(dc)
+        servers = dc.contents(search_children=True, clusto_types=[clusto.drivers.servers.PenguinServer])
+    else:
+        servers = clusto.get_entities(clusto_types=[clusto.drivers.servers.PenguinServer])
+    for server in servers:
+        if not server.parents(clusto_types=[clusto.drivers.pool.Pool]):
+            server_list.append(server)
+    return server_list
+
+def main():
+    parser = OptionParser()
+    parser.add_option('-i', '--ips', dest='ips', action='store_true', default=False,
+        help='Display IP addresses')
+    parser.add_option('-n', '--names', dest='names', action='store_true', default=False,
+        help='Display host names')
+    parser.add_option('-r', '--rack', dest='rack', action='store_true', default=False,
+        help='Display the rack it belongs to')
+    parser.add_option('-a', '--datacenter', dest='datacenter', help='Datacenter to fetch', default=None)
+    (options, args) = parser.parse_args()
+
+    if not options.ips and not options.names:
+        print "Please print something, mang"
+        sys.exit(2)
+    server_list = get_orphans(options.datacenter)
+    for server in server_list:
+        line = ''
+        if options.names:
+            line += '%s ' % server.name
+        if options.ips:
+            ips = server.get_ips() or None
+            if ips:
+                ips = ips[0]
+            else:
+                ips = '<noip>'
+            line += '%s ' % ips
+        if options.rack:
+            rack = server.parents(clusto_types=[clusto.drivers.racks.APCRack])
+            if rack:
+                rack = rack[0].name
+            else:
+                rack = '<norack>'
+            line += '%s ' % rack
+        print line
+
+if __name__ == '__main__':
+    scripthelpers.init_script()
+    sys.exit(main())
