@@ -773,3 +773,8 @@ class Driver(object):
     @property
     def name(self):
         return self.entity.name
+
+
+    def update_metadata(self, *args, **kwargs):
+        """Update entity's metadata"""
+        pass
