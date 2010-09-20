@@ -1,3 +1,11 @@
+clusto (0.5.31-2) unstable; urgency=low
+
+  * Adding clusto-orphans script
+  * Fixing a stupid bug
+  * Bumping rpm spec
+
+ -- Jorge A Gallegos <kad@digg.com>  Mon, 20 Sep 2010 11:47:38 -0700
+
 clusto (0.5.31-1) unstable; urgency=low
 
   * Changed the way we send the config in init, send a config object
