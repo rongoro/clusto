@@ -7,7 +7,7 @@
 
 Name:		clusto
 Version:	0.5.31
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -79,6 +79,10 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Mon Sep 20 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-2
+- Fixing a stupid bug (Jorge A Gallegos)
+- Adding clusto-orphans script (Jorge A Gallegos)
+
 * Thu Sep 16 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-1
 - Initial memcache support
 
