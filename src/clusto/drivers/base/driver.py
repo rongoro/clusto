@@ -596,9 +596,15 @@ class Driver(object):
         return attr
 
 
-    def expire(self, key=None, subkey=None):
+    def expire(self, *args, **kwargs):
         """Expires the memcache value (if using memcache) of this object"""
 
+        key = None
+        if 'key' in kwargs:
+            key = kwargs['key']
+        subkey = None
+        if 'subkey' in kwargs:
+            subkey = kwargs['subkey']
         if clusto.SESSION.memcache:
             attrs = self.attrs(key=key, subkey=subkey)
             memcache_keys = []
