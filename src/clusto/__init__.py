@@ -128,6 +128,7 @@ def get_entities(names=(), clusto_types=(), clusto_drivers=(), attrs=()):
     query = Entity.query()
 
     if names:
+        names = [ u'%s' % _ for _ in names ]
         query = query.filter(Entity.name.in_(names))
 
     if clusto_types:
@@ -139,8 +140,8 @@ def get_entities(names=(), clusto_types=(), clusto_drivers=(), attrs=()):
         query = query.filter(Entity.driver.in_(cdl))
 
     if attrs:
+        attrs = [ u'%s' % _ for _ in attrs ]
         query = query.filter(Attribute.entity_id==Entity.entity_id)
-
         query = query.filter(or_(*[Attribute.queryarg(**args)
                                    for args in attrs]))
 
@@ -160,7 +161,7 @@ def get_from_pools(pools, clusto_types=(), clusto_drivers=(), search_children=Tr
 
     for p in pools:
         if isinstance(p, basestring):
-            pool_names.append(p)
+            pool_names.append(u'%s' % p)
         elif isinstance(p, drivers.Pool):
             pool_types.append(p)
         else:
@@ -180,6 +181,7 @@ def get_from_pools(pools, clusto_types=(), clusto_drivers=(), search_children=Tr
     return reduce(set.intersection, resultsets)
 
 def get_by_name(name):
+    name = u'%s' % name
     try:
         entity = Entity.query().filter_by(name=name).one()
 
