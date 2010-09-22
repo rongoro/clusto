@@ -7,7 +7,7 @@
 
 Name:		clusto
 Version:	0.5.31
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -79,6 +79,9 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Wed Sep 22 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-3
+- Some unicode fixes (Jorge A Gallegos)
+
 * Mon Sep 20 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-2
 - Fixing a stupid bug (Jorge A Gallegos)
 - Adding clusto-orphans script (Jorge A Gallegos)
