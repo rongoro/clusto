@@ -1,3 +1,9 @@
+clusto (0.5.31-3) unstable; urgency=low
+
+  * Some unicode fixes
+
+ -- Jorge A Gallegos <kad@blegh.net>  Wed, 22 Sep 2010 12:54:30 -0700
+
 clusto (0.5.31-2) unstable; urgency=low
 
   * Adding clusto-orphans script
