@@ -4,7 +4,7 @@
 	<link rel="stylesheet" type="text/css" href="css/base.css" />
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script type="text/javascript">
-	var apiurl = 'http://localhost:9996';
+	var apiurl = 'http://' + location.href.split('/').slice(2, 3) + ':9996';
 
 	function break_str(s, breaklen) {
 		if(s.length < breaklen) {
