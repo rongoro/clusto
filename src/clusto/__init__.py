@@ -140,7 +140,8 @@ def get_entities(names=(), clusto_types=(), clusto_drivers=(), attrs=()):
         query = query.filter(Entity.driver.in_(cdl))
 
     if attrs:
-        attrs = [ u'%s' % _ for _ in attrs ]
+        for k,v in attrs[0].items():
+            attrs[0][k] = u'%s' % v
         query = query.filter(Attribute.entity_id==Entity.entity_id)
         query = query.filter(or_(*[Attribute.queryarg(**args)
                                    for args in attrs]))
