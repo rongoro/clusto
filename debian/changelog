@@ -1,3 +1,9 @@
+clusto (0.5.31-4) unstable; urgency=low
+
+  * I broke get_entities. I fixed get_entities.
+
+ -- Jorge A Gallegos <kad@digg.com>  Mon, 27 Sep 2010 09:37:15 -0700
+
 clusto (0.5.31-3) unstable; urgency=low
 
   * Some unicode fixes
