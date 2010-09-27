@@ -1,3 +1,9 @@
+clusto (0.5.31-5) unstable; urgency=low
+
+  * JS runs on the client...
+
+ -- Jorge A Gallegos <kad@blegh.net>  Mon, 27 Sep 2010 11:42:27 -0700
+
 clusto (0.5.31-4) unstable; urgency=low
 
   * I broke get_entities. I fixed get_entities.
