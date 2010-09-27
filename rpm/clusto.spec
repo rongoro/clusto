@@ -7,7 +7,7 @@
 
 Name:		clusto
 Version:	0.5.31
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -79,6 +79,9 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 
 
 %changelog
+* Mon Sep 27 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-5
+- JS runs on the client... (Jorge A Gallegos)
+
 * Mon Sep 27 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-4
 - I broke get_entities. I fixed get_entities. (Jorge A Gallegos)
 
