@@ -25,7 +25,8 @@ class EC2VMManager(ResourceManager):
                                         'm2.2xlarge':1.34,
                                         'm2.4xlarge':2.68,
                                         'c1.medium':0.19,
-                                        'c1.xlarge':0.76}
+                                        'c1.xlarge':0.76,
+                                        't1.micro':0.025}
                                 },
                                         
                    'us-east-1':{'unix':{'m1.small':0.085,
@@ -36,7 +37,8 @@ class EC2VMManager(ResourceManager):
                                         'm2.4xlarge':2.40,
                                         'c1.medium':0.17,
                                         'c1.xlarge':0.68,
-                                        'cc1.4xlarge':1.60}
+                                        'cc1.4xlarge':1.60,
+                                        't1.micro':0.02}
                                 },
                    'us-west-1':{'unix':{'m1.small':0.095,
                                         'm1.large':0.38,
@@ -45,7 +47,8 @@ class EC2VMManager(ResourceManager):
                                         'm2.2xlarge':1.34,
                                         'm2.4xlarge':2.68,
                                         'c1.medium':0.19,
-                                        'c1.xlarge':0.76}
+                                        'c1.xlarge':0.76,
+                                        't1.micro':0.025}
                                 },
                    'ap-southeast-1':{'unix':{'m1.small':0.095,
                                         'm1.large':0.38,
@@ -54,7 +57,8 @@ class EC2VMManager(ResourceManager):
                                         'm2.2xlarge':1.34,
                                         'm2.4xlarge':2.68,
                                         'c1.medium':0.19,
-                                        'c1.xlarge':0.76}
+                                        'c1.xlarge':0.76,
+                                        't1.micro':0.025}
                                 },
                    }
 
