@@ -34,14 +34,17 @@ def barrier_creator(count):
 class ClustoWorkThread(threading.Thread):
 
     def __init__(self, db, echo, barrier):
-        super(ClustoWorkThread, self).__init__()
-        self.db = db
+        super(ClustoWorkThread, self).__init__()  
+        conf = ConfigParser.ConfigParser()
+        conf.add_section('clusto')
+        conf.set('clusto', 'dsn', db)
+        self.conf = conf
         self.echo = echo
         self.barrier = barrier
         
     def run(self):
 
-        clusto.connect(self.db,echo=self.echo)
+        clusto.connect(self.conf,echo=self.echo)
         clusto.init_clusto()
 
         try:
@@ -86,7 +89,10 @@ class ConcurrentTest(testbase.unittest.TestCase):
         if DB.startswith('sqlite'):
             return
             
-        clusto.connect(DB, echo=testbase.ECHO)
+        conf = ConfigParser.ConfigParser()
+        conf.add_section('clusto')
+        conf.set('clusto', 'dsn', testbase.DB)
+        clusto.connect(conf, echo=testbase.ECHO)
         clusto.init_clusto()
         firstver = clusto.get_latest_version_number()
         
