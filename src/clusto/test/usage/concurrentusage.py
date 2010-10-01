@@ -7,6 +7,7 @@ import clusto
 
 import os
 import threading
+import ConfigParser
 
 thread_count = 0
 
@@ -59,8 +60,12 @@ class ClustoWorkThread(threading.Thread):
 class ConcurrentTest(testbase.unittest.TestCase):
 
     def setUp(self):
+        conf = ConfigParser.ConfigParser()
+        conf.add_section('clusto')
+        conf.set('clusto', 'dsn', testbase.DB)
+
         clusto.SESSION.clusto_version = clusto.working_version()
-        clusto.connect(testbase.DB,echo=testbase.ECHO)
+        clusto.connect(conf,echo=testbase.ECHO)
         clusto.METADATA.drop_all(clusto.SESSION.bind)
         clusto.clear()
         clusto.SESSION.close()

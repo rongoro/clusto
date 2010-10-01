@@ -8,6 +8,8 @@ import unittest
 
 import clusto
 
+import ConfigParser
+
 DB='sqlite:///:memory:'
 ECHO=False
 
@@ -31,8 +33,11 @@ class ClustoTestBase(unittest.TestCase):
     
     def setUp(self):
 
+        conf = ConfigParser.ConfigParser()
+        conf.add_section('clusto')
+        conf.set('clusto', 'dsn', DB)
         clusto.SESSION.clusto_version = clusto.working_version()
-        clusto.connect(DB,echo=ECHO)
+        clusto.connect(conf,echo=ECHO)
         clusto.clear()
         clusto.SESSION.close()
         clusto.init_clusto()
