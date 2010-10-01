@@ -176,3 +176,27 @@ class PoolTests(testbase.ClustoTestBase):
 
         self.assertRaises(PoolException, p1.insert, d1)
         
+
+    def testDelAttrs(self):
+
+        d1, d2, p1 = map(clusto.get_by_name, ('d1', 'd2', 'p1'))
+
+        p1.insert(d1)
+        p1.insert(d2)
+
+        p1.add_attr('testkey', 'foo')
+        
+        self.assertEqual(sorted(p1.contents()),
+                         sorted([d1,d2]))
+
+        self.assertEqual([(a.key, a.value) for a in p1.attrs()],
+                         [('testkey','foo')])
+        
+        p1.del_attrs()
+
+        self.assertEqual(sorted(p1.contents()),
+                         sorted([d1,d2]))
+
+        self.assertEqual(p1.attrs(), [])
+
+        
