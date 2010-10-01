@@ -1,2 +1,3 @@
-contrib/* /var/lib/clusto/
-conf/* /etc/clusto/
+contrib/*       /var/lib/clusto/
+conf/*          /etc/clusto/
+web/static/*    /usr/share/clusto/web/
