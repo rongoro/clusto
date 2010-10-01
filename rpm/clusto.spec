@@ -7,7 +7,7 @@
 
 Name:		clusto
 Version:	0.5.31
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	Tools and libraries for organizing and managing infrastructure
 
 Group:		Applications/System
@@ -61,8 +61,10 @@ rm -f .build/html/.buildinfo
 # Create additional directories
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
 mkdir -p %{buildroot}%{_libexecdir}/%{name}
+mkdir -p %{buildroot}%{_datadir}/%{name}/web
 cp conf/* %{buildroot}%{_sysconfdir}/%{name}/
 cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
+cp -R web/static/* %{buildroot}%{_datadir}/%{name}/web/
 
 
 %clean
@@ -75,10 +77,14 @@ cp contrib/* %{buildroot}%{_libexecdir}/%{name}/
 %config(noreplace) %{_sysconfdir}/%{name}
 %{py_sitedir}/%{name}*
 %attr(0755, root, root) %{_libexecdir}/%{name}/*
+%attr(0755, root, root) %{_datadir}/%{name}/*
 %attr(0755, root, root) %{_bindir}/*
 
 
 %changelog
+* Thu Sep 30 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-6
+- Adding the web interface to the package (Jorge A Gallegos)
+
 * Mon Sep 27 2010 Jorge A Gallegos <kad@blegh.net> - 0.5.31-5
 - JS runs on the client... (Jorge A Gallegos)
 
