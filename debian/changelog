@@ -1,3 +1,9 @@
+clusto (0.5.31-6) unstable; urgency=low
+
+  * Adding the web interface to the package
+
+ -- Jorge A Gallegos <kad@digg.com>  Thu, 30 Sep 2010 20:53:43 -0700
+
 clusto (0.5.31-5) unstable; urgency=low
 
   * JS runs on the client...
