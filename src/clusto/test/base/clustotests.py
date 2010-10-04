@@ -408,3 +408,19 @@ class TestClusto(testbase.ClustoTestBase):
         self.assertEquals(sorted(d7.siblings(parent_filter=lambda x: not x.attr_values('pooltype', 'role'),
                                              additional_pools=[db])),
                           sorted([d8]))
+
+
+    def testUnderscore(self):
+
+        d1 = Driver('with_underscore')
+        d2 = Driver('withZunderscore')
+
+        self.assertEqual(clusto.get_by_name('with_underscore'),
+                         d1)
+
+        d1.add_attr('keyZfoo', 'bar')
+        d1.add_attr('key_foo', 'baz')
+
+        self.assertEqual(len(d1.attrs('key_foo')), 1)
+
+        self.assertEqual(len(d1.attr_query('key_foo')), 1)
