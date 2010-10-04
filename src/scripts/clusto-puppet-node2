@@ -3,6 +3,7 @@ from clusto.scripthelpers import init_script
 import clusto
 import yaml
 
+import simplejson
 import sys
 
 def lookup(name):
@@ -65,7 +66,22 @@ def main():
         if paramname not in result['parameters']:            
             result['parameters'][paramname] = value
 
-    result['parameters']['clustopools'] = [str(p.name) for p in server.parents(clusto_types=['pool'])]
+    result['parameters']['pools'] = [str(p.name) for p in server.parents(clusto_types=['pool'])]
+
+    clusters = [p for p in server.parents(clusto_types=['pool']) if p.attr_values('pooltype', value='cluster')]
+
+    peers = {}
+    for c in clusters:
+        servers = c.contents(search_children=True, clusto_types=['server', 'virtualserver'])
+
+        for server in servers:
+            if server not in peers:
+                ips = server.get_ips()
+                if ips:
+                    peers[str(ips[0])] = [str(x.name) for x in server.parents()]
+
+    result['parameters']['peers'] = peers
+        
         
     if disabled:
         result['classes'] = []
