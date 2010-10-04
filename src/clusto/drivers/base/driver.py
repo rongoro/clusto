@@ -284,7 +284,7 @@ class Driver(object):
                 raise TypeError("number must be either a boolean or an integer.")
 
         if ignore_hidden and ((key and not key.startswith('_')) or key is ()):
-            query = query.filter(not_(Attribute.key.like('\\_%', escape='\\')))
+            query = query.filter(not_(Attribute.key.like('@_%', escape='@')))
 
         if sort_by_keys:
             query = query.order_by(Attribute.key)
