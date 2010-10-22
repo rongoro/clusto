@@ -95,7 +95,11 @@ class EC2VMManager(ResourceManager):
 
         conn = self._ec2_connection(resource['placement'][:-1])
 
-        reservations = conn.get_all_instances([resource['instance_id']])
+        try:
+            reservations = conn.get_all_instances([resource['instance_id']])
+        except boto.exception.EC2ResponseError, ex:
+            if ex.error_code == 'InvalidInstanceID.NotFound':
+                return
 
         for reservation in reservations:
             for instance in reservation.instances:
