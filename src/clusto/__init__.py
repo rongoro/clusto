@@ -4,7 +4,7 @@ from clusto.exceptions import *
 from clusto.drivers import DRIVERLIST, TYPELIST, Driver, ClustoMeta, IPManager
 from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy import create_engine
-
+from sqlalchemy.pool import SingletonThreadPool 
 
 from clusto import drivers
 
@@ -26,7 +26,11 @@ def connect(config, echo=False):
 
     @param config: the config object
     """
-    SESSION.configure(bind=create_engine(config.get('clusto', 'dsn'), echo=echo))
+    SESSION.configure(bind=create_engine(config.get('clusto', 'dsn'),
+                                         echo=echo,
+                                         poolclass=SingletonThreadPool,
+                                         pool_recycle=600
+                                         ))
     try:
         memcache_servers = config.get('clusto', 'memcached').split(',')
 #       Memcache should only be imported if we're actually using it, yes?
